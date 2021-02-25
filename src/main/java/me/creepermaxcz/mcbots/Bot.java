@@ -63,7 +63,6 @@ public class Bot extends Thread {
             });
         }
         client.getSession().connect();
-        //client.getSession().send(new ClientPlayerPositionPacket(true, 0, 0, 0));
     }
 
     public void sendChat(String text) {
