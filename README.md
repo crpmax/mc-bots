@@ -1,29 +1,29 @@
 # Minecraft bot stress tester
-A simple app written in Java used for stress testing Minecraft servers.  
-It can be also used to test plugins or minigames.  
-The MC version of the bots is 1.16.4.
+🤖 A simple app written in Java used for stress testing Minecraft servers with bots.  
+💥 It can be also used to test plugins or minigames.  
+✔️ The MC version of the bots is 1.16.4.
 
-## Features
+## 🆒 Features
 - ✅ Connect as many bots as you want
 - ✅ Receive colored or noncolored chat
 - ✅ Set connection delay
 - ✅ Set message or command on join
 - ✅ Generate random or real looking nicknames
 
-## Usage
+## 📖 Usage
 Minimal Java version: 8  
 Use of pre-compiled jar from [releases](https://github.com/crpmax/mc-bots/releases " releases"):  
 `java -jar mc-bots.jar -s <server address> [arguments]`  
 When running, you can write a chat message to the terminal to send it by all bots.
 
-## Example
+## 🧪 Example
 `java -jar mc-bots-1.0.0.jar -s 192.168.0.189:25565 -d 10 11 -r -p BOT_ -c 30`
 
 <img src="https://imgur.com/XWcckas.png" title="Connected bots" width="350px"/>
 <img src="https://imgur.com/CvJq1Io.gif" title="Sending chat message by bots" width="350px"/>
 
 
-#### Options
+## ⚡ Options
 `-c <count>` The count of bots to connect, default is 1  
 `-d <min> <max>` Set the minimum and maximum connection delay range in ms, default is 4000-5000  
 `-j <message>` The message or command to send on join, does not work with `-m` or `-x` option  
@@ -33,6 +33,6 @@ When running, you can write a chat message to the terminal to send it by all bot
 `-m` Minimal run - do not use any listeners, will not receive chat, useful for large amounts of bots  
 `-x` The most minimal run - No listeners, no control, no chat - useful for large amounts of bots for better performance  
 
-## DISCLAIMER
+## ⚠ DISCLAIMER
 **This app is made for educational and testing purposes only  
 I am not responsible for any abuse**
