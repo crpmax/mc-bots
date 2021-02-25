@@ -154,10 +154,5 @@ public class Utils {
         } else {
             return base;
         }
-
-
-        //Log.info(Arrays.toString(message.getWith().toArray()));
-        //msg = String.format(msg, );
-        //return msg;
     }
 }
