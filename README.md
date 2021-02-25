@@ -16,6 +16,13 @@ Use of pre-compiled jar from [releases](https://github.com/crpmax/mc-bots/releas
 `java -jar mc-bots.jar -s <server address> [arguments]`  
 When running, you can write a chat message to the terminal to send it by all bots.
 
+## Example
+`java -jar mc-bots-1.0.0.jar -s 192.168.0.189:25565 -d 10 11 -r -p BOT_ -c 30`
+
+<img src="https://up.frantajaros.cz/l5ny2smrk9" title="Sending chat message by bots" width="350px"/>
+<img src="https://up.frantajaros.cz/wk2x70v4vk.gif" title="Sending chat message by bots" width="350px"/>
+
+
 #### Options
 `-c <count>` The count of bots to connect, default is 1  
 `-d <min> <max>` Set the minimum and maximum connection delay range in ms, default is 4000-5000  
