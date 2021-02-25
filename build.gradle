@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+group 'me.creepermaxcz.mc-bots'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.Steveice10:MCProtocolLib:1.16.4-1'
+    implementation 'commons-cli:commons-cli:1.4'
+    implementation 'com.diogonunes:JColor:5.0.1'
+    implementation 'dnsjava:dnsjava:3.3.1'
+    implementation 'org.slf4j:slf4j-nop:1.7.30'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'me.creepermaxcz.mcbots.Main'
+    }
+    from {
+        configurations.runtimeClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
