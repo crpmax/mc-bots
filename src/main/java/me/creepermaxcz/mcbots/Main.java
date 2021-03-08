@@ -92,10 +92,12 @@ public class Main {
             port = Integer.parseInt(split[1]);
         } else {
             Record[] records = new Lookup("_minecraft._tcp." + address, Type.SRV).run();
-            for (Record record : records) {
-                SRVRecord srv = (SRVRecord) record;
-                address = srv.getTarget().toString().replaceFirst("\\.$", "");
-                port = srv.getPort();
+            if (records != null) {
+                for (Record record : records) {
+                    SRVRecord srv = (SRVRecord) record;
+                    address = srv.getTarget().toString().replaceFirst("\\.$", "");
+                    port = srv.getPort();
+                }
             }
         }
 
