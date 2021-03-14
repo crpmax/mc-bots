@@ -1,5 +1,5 @@
 # Minecraft bot stress tester
-🤖 A simple app written in Java used for stress testing Minecraft servers with bots.  
+🤖 A simple open source app written in Java used for stress testing Minecraft servers with bots (fake players).  
 💥 It can be also used to test plugins or minigames.  
 ✔️ The MC version of the bots is 1.16.4.
 
@@ -34,5 +34,6 @@ When running, you can write a chat message to the terminal to send it by all bot
 `-x` The most minimal run - No listeners, no control, no chat - useful for large amounts of bots for better performance  
 
 ## ⚠ DISCLAIMER
-**This app is made for educational and testing purposes only  
-I am not responsible for any abuse**
+**This app is made for educational and testing purposes only.  
+This app can be used like spambots.  
+I am not responsible for any abuse.**
