@@ -1,20 +1,21 @@
 package me.creepermaxcz.mcbots;
 
 import com.diogonunes.jcolor.Attribute;
-import com.github.steveice10.mc.protocol.data.message.Message;
-import com.github.steveice10.mc.protocol.data.message.TextMessage;
-import com.github.steveice10.mc.protocol.data.message.TranslationMessage;
-import com.github.steveice10.mc.protocol.data.message.style.ChatColor;
-import com.github.steveice10.mc.protocol.data.message.style.ChatFormat;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.diogonunes.jcolor.Ansi.colorize;
 
@@ -22,115 +23,104 @@ public class Utils {
 
     private static JsonObject lang;
 
-    public static String getFullText(TextMessage message) {
-        if (message.getExtra().size() > 0) {
+    public static String getFullText(TextComponent message, boolean colored) {
+        if (message.children().size() > 0) {
             StringBuilder text = new StringBuilder();
-            for (Message extra : message.getExtra()) {
-                text.append(getFullText((TextMessage) extra));
+            for (Component child : message.children()) {
+                text.append(getFullText((TextComponent) child, colored));
             }
             return text.toString();
         } else {
-            return ((TextMessage)message).getText();
-        }
-    }
-
-    public static String getFormattedFullText(Message message) {
-        if (message.getExtra().size() > 0) {
-            StringBuilder text = new StringBuilder();
-            for (Message extra : message.getExtra()) {
-                text.append(getFormattedFullText(extra));
+            String out = message.content();
+            if (colored) {
+                if (message.style().color() != null) {
+                    List<Attribute> formats = new ArrayList<>(getFormats(message.style().decorations()));
+                    formats.add(getColor((NamedTextColor) message.style().color()));
+                    out = colorize(out, formats.toArray(new Attribute[0]));
+                }
             }
-            return text.toString();
-        } else {
-
-            String out = ((TextMessage) message).getText();
-
-            List<Attribute> formats = new ArrayList<>(getFormat(message.getStyle().getFormats()));
-            formats.add(getColor(message.getStyle().getColor()));
-
-            out = colorize(out, formats.toArray(new Attribute[0]));
-
             return out;
         }
+
     }
 
-    public static Attribute getColor(String name) {
-        switch (name) {
-            case ChatColor.RED:
+    public static Attribute getColor(NamedTextColor color) {
+        switch (color.toString()) {
+            case "red":
                 return Attribute.BRIGHT_RED_TEXT();
-            case ChatColor.DARK_RED:
+            case "dark_red":
                 return Attribute.RED_TEXT();
 
-            case ChatColor.BLUE:
+            case "blue":
                 return Attribute.BRIGHT_BLUE_TEXT();
-            case ChatColor.DARK_BLUE:
+            case "dark_blue":
                 return Attribute.BLUE_TEXT();
 
-            case ChatColor.WHITE:
+            case "white":
                 return Attribute.BRIGHT_WHITE_TEXT();
-            case ChatColor.BLACK:
+            case "black":
                 return Attribute.BLACK_TEXT();
-            case ChatColor.GRAY:
+            case "gray":
                 return Attribute.WHITE_TEXT();
-            case ChatColor.DARK_GRAY:
+            case "dark_gray":
                 return Attribute.BRIGHT_BLACK_TEXT();
 
-            case ChatColor.AQUA:
+            case "aqua":
                 return Attribute.BRIGHT_CYAN_TEXT();
-            case ChatColor.DARK_AQUA:
+            case "dark_aqua":
                 return Attribute.CYAN_TEXT();
 
-            case ChatColor.YELLOW:
+            case "yellow":
                 return Attribute.BRIGHT_YELLOW_TEXT();
-            case ChatColor.GOLD:
+            case "gold":
                 return Attribute.YELLOW_TEXT();
 
-            case ChatColor.GREEN:
+            case "green":
                 return Attribute.BRIGHT_GREEN_TEXT();
-            case ChatColor.DARK_GREEN:
+            case "dark_green":
                 return Attribute.GREEN_TEXT();
 
-            case ChatColor.LIGHT_PURPLE:
+            case "purple":
                 return Attribute.BRIGHT_MAGENTA_TEXT();
-            case ChatColor.DARK_PURPLE:
+            case "dark_purple":
                 return Attribute.MAGENTA_TEXT();
         }
         return Attribute.NONE();
     }
 
-    public static List<Attribute> getFormat(List<ChatFormat> formats) {
+    public static List<Attribute> getFormats(Map<TextDecoration, TextDecoration.State> decorations) {
         List<Attribute> list = new ArrayList<>();
-        formats.forEach(format -> {
-            switch (format) {
-                case BOLD:
-                    list.add(Attribute.BOLD());
-                    break;
-                case ITALIC:
-                    list.add(Attribute.ITALIC());
-                    break;
-                case UNDERLINED:
-                    list.add(Attribute.UNDERLINE());
-                    break;
-                case STRIKETHROUGH:
-                    list.add(Attribute.STRIKETHROUGH());
-                    break;
+        decorations.forEach((format, state) -> {
+            if (state.equals(TextDecoration.State.TRUE)) {
+                switch (format) {
+                    case ITALIC:
+                        list.add(Attribute.ITALIC());
+                        break;
+                    case UNDERLINED:
+                        list.add(Attribute.UNDERLINE());
+                        break;
+                    case STRIKETHROUGH:
+                        list.add(Attribute.STRIKETHROUGH());
+                        break;
+                }
             }
         });
         return list;
     }
 
-    public static String translate(TranslationMessage message) {
+
+    public static String translate(TranslatableComponent message) {
         if (lang == null) {
             try {
-                InputStream resource = Utils.class.getClass().getResourceAsStream("/files/lang.json");
+                InputStream resource = Utils.class.getResourceAsStream("/files/lang.json");
                 lang = new JsonParser().parse(new InputStreamReader(resource)).getAsJsonObject();
             } catch (Exception e) {
-                Log.error(e);
+                Log.crit(e);
             }
         }
-        Log.info(message.toString());
+        //Log.info(message.toString());
 
-        String key = message.getKey();
+        String key = message.key();
         String base = key;
 
         JsonElement value = lang.get(key);
@@ -140,19 +130,20 @@ public class Utils {
 
         ArrayList<String> placeholders = new ArrayList<>();
 
-        if (message.getWith().size() > 0) {
-            for (Message with : message.getWith()) {
-                if (with instanceof TranslationMessage) {
-                    placeholders.add(translate((TranslationMessage) with));
+        if (message.args().size() > 0) {
+            for (Component component : message.args()) {
+                if (component instanceof TranslatableComponent) {
+                    placeholders.add(translate((TranslatableComponent) component));
                 }
-                else if (with instanceof TextMessage) {
-                    placeholders.add(((TextMessage) with).getText());
+                else if (component instanceof TextComponent) {
+                    placeholders.add(getFullText((TextComponent) component, false));
                 }
             }
-            Log.info(Arrays.toString(placeholders.toArray()));
+            //Log.info(Arrays.toString(placeholders.toArray()));
             return String.format(base, placeholders.toArray());
         } else {
             return base;
         }
     }
+
 }

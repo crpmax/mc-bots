@@ -1,10 +1,12 @@
 package me.creepermaxcz.mcbots;
 
-import com.github.steveice10.mc.protocol.data.message.Message;
-import com.github.steveice10.mc.protocol.data.message.TextMessage;
-import com.github.steveice10.mc.protocol.data.message.TranslationMessage;
-import com.github.steveice10.mc.protocol.packet.ingame.server.ServerChatPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundChatPacket;
+import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.event.session.*;
+import com.github.steveice10.packetlib.packet.Packet;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
 
 public class MainListener implements SessionListener {
 
@@ -13,18 +15,17 @@ public class MainListener implements SessionListener {
     }
 
     @Override
-    public void packetReceived(PacketReceivedEvent event) {
-        if(event.getPacket() instanceof ServerChatPacket) {
-            Message message = event.<ServerChatPacket>getPacket().getMessage();
-            if (message instanceof TextMessage) {
-                if (Main.coloredChat) {
-                    Log.chat(Utils.getFormattedFullText(message));
-                } else {
-                    Log.chat(Utils.getFullText((TextMessage) message));
-                }
-
-            } else if (message instanceof TranslationMessage) {
-                Log.chat("[T]", Utils.translate((TranslationMessage) message));
+    public void packetReceived(Session session, Packet packet) {
+        if(packet instanceof ClientboundChatPacket) {
+            Component message = ((ClientboundChatPacket) packet).getMessage();
+            //Log.chat(message.toString());
+            if (message instanceof TextComponent) {
+                TextComponent msg = (TextComponent) message;
+                Log.chat(Utils.getFullText(msg, Main.coloredChat));
+            }
+            if (message instanceof TranslatableComponent) {
+                TranslatableComponent msg = (TranslatableComponent) message;
+                Log.chat("[T]", Utils.translate(msg));
             }
         }
     }
@@ -35,7 +36,7 @@ public class MainListener implements SessionListener {
     }
 
     @Override
-    public void packetSent(PacketSentEvent event) {
+    public void packetSent(Session session, Packet packet) {
 
     }
 

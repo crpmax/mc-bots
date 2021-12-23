@@ -1,14 +1,14 @@
 package me.creepermaxcz.mcbots;
 
 import com.github.steveice10.mc.protocol.MinecraftProtocol;
-import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.server.ServerJoinGamePacket;
-import com.github.steveice10.packetlib.Client;
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatPacket;
 import com.github.steveice10.packetlib.ProxyInfo;
+import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
-import com.github.steveice10.packetlib.event.session.PacketReceivedEvent;
 import com.github.steveice10.packetlib.event.session.SessionAdapter;
-import com.github.steveice10.packetlib.tcp.TcpSessionFactory;
+import com.github.steveice10.packetlib.packet.Packet;
+import com.github.steveice10.packetlib.tcp.TcpClientSession;
 
 import java.net.InetSocketAddress;
 
@@ -19,7 +19,7 @@ public class Bot extends Thread {
     private String nickname;
     private ProxyInfo proxy;
     private InetSocketAddress address;
-    private Client client;
+    private Session client;
     private boolean hasMainListener;
 
     public Bot(String nickname, InetSocketAddress address, ProxyInfo proxy) {
@@ -29,18 +29,18 @@ public class Bot extends Thread {
 
         Log.info("Creating bot", nickname);
         protocol = new MinecraftProtocol(nickname);
-        client = new Client(address.getHostString(), address.getPort(), protocol, new TcpSessionFactory(proxy));
+        client = new TcpClientSession(address.getHostString(), address.getPort(), protocol);
     }
 
     @Override
     public void run() {
 
         if (!Main.isMinimal()) {
-            client.getSession().addListener(new SessionAdapter() {
+            client.addListener(new SessionAdapter() {
 
                 @Override
-                public void packetReceived(PacketReceivedEvent event) {
-                    if (event.getPacket() instanceof ServerJoinGamePacket) {
+                public void packetReceived(Session session, Packet packet) {
+                    if (packet instanceof ClientboundLoginPacket) {
                         Log.info(nickname + " connected");
                         if (Main.joinMessage != null) {
                             sendChat(Main.joinMessage);
@@ -52,7 +52,7 @@ public class Bot extends Thread {
                 public void disconnected(DisconnectedEvent event) {
                     Log.info();
                     Log.info(nickname + " disconnected");
-                    Log.info(event.getReason());
+                    Log.info(" -> " + event.getReason());
                     if(event.getCause() != null) {
                         event.getCause().printStackTrace();
                     }
@@ -62,11 +62,11 @@ public class Bot extends Thread {
                 }
             });
         }
-        client.getSession().connect();
+        client.connect();
     }
 
     public void sendChat(String text) {
-        client.getSession().send(new ClientChatPacket(text));
+        client.send(new ServerboundChatPacket(text));
     }
 
 
@@ -77,7 +77,7 @@ public class Bot extends Thread {
     public void registerMainListener() {
         hasMainListener = true;
         if (Main.isMinimal()) return;
-        client.getSession().addListener(new MainListener(nickname));
+        client.addListener(new MainListener(nickname));
     }
 
     public boolean hasMainListener() {
