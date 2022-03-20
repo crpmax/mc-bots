@@ -1,16 +1,27 @@
 package me.creepermaxcz.mcbots;
 
+import com.github.steveice10.packetlib.ProxyInfo;
 import org.apache.commons.cli.*;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.Type;
 
+import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
 
@@ -25,6 +36,12 @@ public class Main {
     private static boolean minimal = false;
     private static boolean mostMinimal = false;
     public static String joinMessage;
+
+    private static boolean useProxies = false;
+    private static ArrayList<InetSocketAddress> proxies = new ArrayList<>();
+    private static int proxyIndex = 0;
+    private static int proxyCount = 0;
+    private static ProxyInfo.Type proxyType;
 
     public static void main(String[] args) throws Exception {
 
@@ -47,6 +64,9 @@ public class Main {
         options.addOption("x", "most-minimal", false, "minimal run without any control, just connect the bots");
         options.addOption("j", "join-msg", true, "join message / command");
 
+        options.addOption("l", "proxy-list", true, "Path to proxy list file with proxy:port on every line");
+        options.addOption("t", "proxy-type", true, "Proxy type: SOCKS4 or SOCKS5");
+
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
 
@@ -56,6 +76,45 @@ public class Main {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("mcbots", e.getMessage(), options, "\nhttps://github.com/crpmax/mc-bots",true);
             System.exit(1);
+        }
+
+        if (cmd.hasOption('t') && cmd.hasOption('l')) {
+            String typeStr = cmd.getOptionValue('t').toUpperCase();
+
+            //get proxy type
+            try {
+                proxyType = ProxyInfo.Type.valueOf(typeStr);
+            } catch (IllegalArgumentException e) {
+                Log.error("Inavlid proxy type, use SOCKS4 or SOCKS5.");
+                System.exit(1);
+            }
+
+            //read proxy list file
+            try {
+                Scanner scanner = new Scanner(new File(cmd.getOptionValue('l')));
+                while (scanner.hasNextLine()) {
+                    try {
+                        String[] parts = scanner.nextLine().trim().split(":");
+                        if (parts.length == 2) {
+                            int port = Integer.parseInt(parts[1]);
+                            proxies.add(new InetSocketAddress(parts[0], port));
+                            proxyCount++;
+                        }
+                    }
+                    catch (Exception ignored) { }
+                }
+                scanner.close();
+            } catch (FileNotFoundException e) {
+                Log.error("Invalid proxy list file path.");
+                System.exit(1);
+            }
+
+            if (proxyCount == 0) {
+                Log.error("No valid proxies found in file");
+                System.exit(1);
+            }
+
+            useProxies = true;
         }
 
 
@@ -119,10 +178,35 @@ public class Main {
         new Thread(() -> {
             for (int i = 0; i < botCount; i++) {
                 try {
+                    ProxyInfo proxyInfo = null;
+                    if (useProxies) {
+                        InetSocketAddress proxySocket = proxies.get(proxyIndex);
+
+                        if (!minimal) {
+                            Log.info(
+                                    "Using proxy: (" + proxyIndex + ")",
+                                    proxySocket.getHostString() + ":" + proxySocket.getPort()
+                            );
+                        }
+
+                        proxyInfo = new ProxyInfo(
+                                proxyType,
+                                proxySocket
+                        );
+
+                        //increment or reset current proxy index
+                        if (proxyIndex < (proxyCount - 1)) {
+                            proxyIndex++;
+                        } else {
+                            proxyIndex = 0;
+                        }
+
+                    }
+
                     Bot bot = new Bot(
                             nickGen.nextNick(),
                             inetAddr,
-                            null
+                            proxyInfo
                     );
                     bot.start();
 

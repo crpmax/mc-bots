@@ -29,7 +29,7 @@ public class Bot extends Thread {
 
         Log.info("Creating bot", nickname);
         protocol = new MinecraftProtocol(nickname);
-        client = new TcpClientSession(address.getHostString(), address.getPort(), protocol);
+        client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, proxy);
     }
 
     @Override

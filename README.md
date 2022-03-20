@@ -5,6 +5,7 @@
 
 ## 🆒 Features
 - ✅ Connect as many bots as you want
+- ✅ Use SOCKS4 or SOCKS5 proxies
 - ✅ Receive colored or noncolored chat
 - ✅ Set connection delay
 - ✅ Set message or command on join
@@ -17,7 +18,7 @@ Use of pre-compiled jar from [releases](https://github.com/crpmax/mc-bots/releas
 When running, you can write a chat message to the terminal to send it by all bots.
 
 ## 🧪 Example
-`java -jar mc-bots-1.0.0.jar -s 192.168.0.189:25565 -d 10 11 -r -p BOT_ -c 30`
+`java -jar mc-bots-1.2.0.jar -s 192.168.0.189:25565 -d 10 11 -r -p BOT_ -c 30`
 
 <img src="https://imgur.com/XWcckas.png" title="Connected bots" width="350px"/>
 <img src="https://imgur.com/CvJq1Io.gif" title="Sending chat message by bots" width="350px"/>
@@ -32,6 +33,8 @@ When running, you can write a chat message to the terminal to send it by all bot
 `-n` Do not use color in terminal - useful when the terminal does not support it  
 `-m` Minimal run - do not use any listeners, will not receive chat, useful for large amounts of bots  
 `-x` The most minimal run - No listeners, no control, no chat - useful for large amounts of bots for better performance  
+`-t` Set proxy type - SOCKS4 or SOCKS5  
+`-l` Set proxy list file  
 
 ## ⚠ DISCLAIMER
 **This app is made for educational and testing purposes only.  
