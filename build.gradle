@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.GeyserMC:MCProtocolLib:1.18-3'
+    implementation 'com.github.GeyserMC:MCProtocolLib:1.18.2-1'
     implementation 'commons-cli:commons-cli:1.5.0'
     implementation 'com.diogonunes:JColor:5.2.0'
     implementation 'dnsjava:dnsjava:3.4.3'
