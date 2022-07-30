@@ -1,11 +1,12 @@
 package me.creepermaxcz.mcbots;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class NickGenerator {
@@ -24,6 +25,34 @@ public class NickGenerator {
     private boolean real = false;
 
     private String prefix = "";
+
+    public int loadFromFile(String filePath) {
+        lines = new ArrayList<>();
+        try {
+            Scanner scanner = new Scanner(new File(filePath));
+            while (scanner.hasNextLine()) {
+                try {
+                    String line = scanner.nextLine().trim();
+
+                    //add only valid nicknames
+                    if (line.matches("^[a-zA-Z0-9_]{3,16}$")) {
+                        lines.add(line);
+                    }
+                }
+                catch (Exception ignored) { }
+            }
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            Log.error("Invalid nicknames list file path");
+            System.exit(1);
+        }
+
+        linesSize = lines.size();
+        Log.info("Loaded " + linesSize + " valid nicknames");
+        real = true;
+
+        return linesSize;
+    }
 
     private void loadLines() {
         try (InputStream resource = getClass().getResourceAsStream("/files/nicks.txt")) {

@@ -9,7 +9,7 @@
 - ✅ Receive colored or noncolored chat
 - ✅ Set connection delay
 - ✅ Set message or command on join
-- ✅ Generate random or real looking nicknames
+- ✅ Generate random or real looking nicknames or load from file
 
 ## 📖 Usage
 Minimal Java version: 8  
@@ -35,6 +35,7 @@ When running, you can write a chat message to the terminal to send it by all bot
 `-x` The most minimal run - No listeners, no control, no chat - useful for large amounts of bots for better performance  
 `-t` Set proxy type - SOCKS4 or SOCKS5  
 `-l` Set proxy list file  
+`-nicks` Set nicknames file  
 
 ## ⚠ DISCLAIMER
 **This app is made for educational and testing purposes only.  

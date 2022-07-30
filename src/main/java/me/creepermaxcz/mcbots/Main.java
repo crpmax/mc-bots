@@ -67,6 +67,8 @@ public class Main {
         options.addOption("l", "proxy-list", true, "Path to proxy list file with proxy:port on every line");
         options.addOption("t", "proxy-type", true, "Proxy type: SOCKS4 or SOCKS5");
 
+        options.addOption("nicks", true, "Path to nicks file with nick on every line");
+
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
 
@@ -163,7 +165,18 @@ public class Main {
         boolean realNicknames = cmd.hasOption('r');
 
         NickGenerator nickGen = new NickGenerator();
-        nickGen.setReal(realNicknames);
+
+        if (cmd.hasOption("nicks")) {
+            Log.info("Loading nicknames from specified file");
+            int nicksCount = nickGen.loadFromFile(cmd.getOptionValue("nicks"));
+            if (nicksCount < botCount) {
+                Log.warn("Nickname count is lower than bot count!");
+                Thread.sleep(3000);
+            }
+        } else {
+            nickGen.setReal(realNicknames);
+        }
+
         nickGen.setPrefix(cmd.getOptionValue('p', ""));
 
         InetSocketAddress inetAddr = new InetSocketAddress(

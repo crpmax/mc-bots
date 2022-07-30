@@ -27,6 +27,13 @@ public class Log {
         log("INFO | ");
     }
 
+    public static void warn(String ...in) {
+        log("WARN | " + String.join(" ", in));
+    }
+    public static void warn() {
+        log("WARN | ");
+    }
+
     public static void chat(String ...in) {
         log("CHAT | " + String.join(" ", in));
     }
