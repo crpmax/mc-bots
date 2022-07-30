@@ -5,7 +5,7 @@
 
 ## 🆒 Features
 - ✅ Connect as many bots as you want
-- ✅ Use SOCKS4 or SOCKS5 proxies
+- ✅ Use SOCKS4 or SOCKS5 proxies from file or URL
 - ✅ Receive colored or noncolored chat
 - ✅ Set connection delay
 - ✅ Set message or command on join

@@ -8,20 +8,11 @@ import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.Type;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Paths;
+import java.net.*;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 public class Main {
 
@@ -38,7 +29,7 @@ public class Main {
     public static String joinMessage;
 
     private static boolean useProxies = false;
-    private static ArrayList<InetSocketAddress> proxies = new ArrayList<>();
+    private static final ArrayList<InetSocketAddress> proxies = new ArrayList<>();
     private static int proxyIndex = 0;
     private static int proxyCount = 0;
     private static ProxyInfo.Type proxyType;
@@ -64,7 +55,7 @@ public class Main {
         options.addOption("x", "most-minimal", false, "minimal run without any control, just connect the bots");
         options.addOption("j", "join-msg", true, "join message / command");
 
-        options.addOption("l", "proxy-list", true, "Path to proxy list file with proxy:port on every line");
+        options.addOption("l", "proxy-list", true, "Path or URL to proxy list file with proxy:port on every line");
         options.addOption("t", "proxy-type", true, "Proxy type: SOCKS4 or SOCKS5");
 
         options.addOption("nicks", true, "Path to nicks file with nick on every line");
@@ -91,32 +82,63 @@ public class Main {
                 System.exit(1);
             }
 
+            String proxyPath = cmd.getOptionValue("l");
+
             //read proxy list file
             try {
-                Scanner scanner = new Scanner(new File(cmd.getOptionValue('l')));
-                while (scanner.hasNextLine()) {
-                    try {
-                        String[] parts = scanner.nextLine().trim().split(":");
-                        if (parts.length == 2) {
-                            int port = Integer.parseInt(parts[1]);
-                            proxies.add(new InetSocketAddress(parts[0], port));
-                            proxyCount++;
+
+                try {
+                    //try to read specified path as URL
+                    URL url = new URL(proxyPath);
+
+                    BufferedReader read = new BufferedReader(
+                            new InputStreamReader(url.openStream()));
+
+                    Log.info("Reading proxies from URL");
+                    String line;
+                    while ((line = read.readLine()) != null) {
+                        try {
+                            String[] parts = line.trim().split(":");
+                            if (parts.length == 2) {
+                                int port = Integer.parseInt(parts[1]);
+                                proxies.add(new InetSocketAddress(parts[0], port));
+                                proxyCount++;
+                            }
                         }
+                        catch (Exception ignored) { }
                     }
-                    catch (Exception ignored) { }
+                    read.close();
+
+                } catch (MalformedURLException e) {
+                    Log.info("Specified proxy file is not a URL, trying to read file");
+
+                    Scanner scanner = new Scanner(new File(proxyPath));
+                    while (scanner.hasNextLine()) {
+                        try {
+                            String[] parts = scanner.nextLine().trim().split(":");
+                            if (parts.length == 2) {
+                                int port = Integer.parseInt(parts[1]);
+                                proxies.add(new InetSocketAddress(parts[0], port));
+                                proxyCount++;
+                            }
+                        }
+                        catch (Exception ignored) { }
+                    }
+                    scanner.close();
                 }
-                scanner.close();
             } catch (FileNotFoundException e) {
                 Log.error("Invalid proxy list file path.");
                 System.exit(1);
             }
 
-            if (proxyCount == 0) {
-                Log.error("No valid proxies found in file");
+            if (proxyCount > 0) {
+                useProxies = true;
+                Log.info("Loaded " + proxyCount + " valid proxies");
+            } else {
+                Log.error("No valid proxies loaded");
                 System.exit(1);
             }
 
-            useProxies = true;
         }
 
 
