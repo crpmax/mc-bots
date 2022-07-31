@@ -36,7 +36,7 @@ When running, you can write a chat message to the terminal to send it by all bot
 `-t` Set proxy type - SOCKS4 or SOCKS5  
 `-l` Set proxy list file  
 `-g` Try to simulate gravity by falling down  
-`-nicks` Set nicknames file  
+`--nicks` Set nicknames file  
 
 ## ⚠ DISCLAIMER
 **This app is made for educational and testing purposes only.  

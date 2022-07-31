@@ -63,7 +63,7 @@ public class Main {
         options.addOption("l", "proxy-list", true, "Path or URL to proxy list file with proxy:port on every line");
         options.addOption("t", "proxy-type", true, "Proxy type: SOCKS4 or SOCKS5");
 
-        options.addOption("nicks", true, "Path to nicks file with nick on every line");
+        options.addOption(null, "nicks", true, "Path to nicks file with nick on every line");
 
         options.addOption("g", "gravity", false, "Try to simulate gravity by falling down");
 
@@ -198,6 +198,12 @@ public class Main {
         if (cmd.hasOption("nicks")) {
             Log.info("Loading nicknames from specified file");
             int nicksCount = nickGen.loadFromFile(cmd.getOptionValue("nicks"));
+
+            if (nicksCount == 0) {
+                Log.error("No valid nicknames loaded");
+                System.exit(1);
+            }
+
             if (nicksCount < botCount) {
                 Log.warn("Nickname count is lower than bot count!");
                 Thread.sleep(3000);
