@@ -13,6 +13,8 @@ import java.net.*;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class Main {
@@ -34,6 +36,8 @@ public class Main {
     private static int proxyIndex = 0;
     private static int proxyCount = 0;
     private static ProxyInfo.Type proxyType;
+
+    private static Timer timer = new Timer();
 
     public static void main(String[] args) throws Exception {
 
@@ -60,6 +64,8 @@ public class Main {
         options.addOption("t", "proxy-type", true, "Proxy type: SOCKS4 or SOCKS5");
 
         options.addOption("nicks", true, "Path to nicks file with nick on every line");
+
+        options.addOption("g", "gravity", false, "Try to simulate gravity by falling down");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -282,6 +288,16 @@ public class Main {
 
             }
         }).start();
+
+        //gravity timer
+        if (cmd.hasOption("g")) {
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    bots.forEach(Bot::fallDown);
+                }
+            }, 1000L, 500L);
+        }
 
 
         Scanner scanner = new Scanner(System.in);

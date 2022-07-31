@@ -2,7 +2,10 @@ package me.creepermaxcz.mcbots;
 
 import com.github.steveice10.mc.protocol.MinecraftProtocol;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.serverbound.player.*;
 import com.github.steveice10.packetlib.ProxyInfo;
 import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
@@ -21,6 +24,10 @@ public class Bot extends Thread {
     private InetSocketAddress address;
     private Session client;
     private boolean hasMainListener;
+
+    private double lastX, lastY, lastZ = -1;
+
+    private boolean connected;
 
     public Bot(String nickname, InetSocketAddress address, ProxyInfo proxy) {
         this.nickname = nickname;
@@ -41,15 +48,26 @@ public class Bot extends Thread {
                 @Override
                 public void packetReceived(Session session, Packet packet) {
                     if (packet instanceof ClientboundLoginPacket) {
+                        connected = true;
                         Log.info(nickname + " connected");
                         if (Main.joinMessage != null) {
                             sendChat(Main.joinMessage);
                         }
                     }
+                    else if (packet instanceof ClientboundPlayerPositionPacket) {
+                        ClientboundPlayerPositionPacket p = (ClientboundPlayerPositionPacket) packet;
+
+                        lastX = p.getX();
+                        lastY = p.getY();
+                        lastZ = p.getZ();
+
+                        client.send(new ServerboundAcceptTeleportationPacket(p.getTeleportId()));
+                    }
                 }
 
                 @Override
                 public void disconnected(DisconnectedEvent event) {
+                    connected = false;
                     Log.info();
                     Log.info(nickname + " disconnected");
                     Log.info(" -> " + event.getReason());
@@ -82,5 +100,29 @@ public class Bot extends Thread {
 
     public boolean hasMainListener() {
         return hasMainListener;
+    }
+
+    public void fallDown()
+    {
+        if (connected && lastY > 0) {
+            move(0, -0.5, 0);
+        }
+    }
+
+    public void move(double x, double y, double z)
+    {
+        lastX += x;
+        lastY += y;
+        lastZ += z;
+        moveTo(lastX, lastY, lastZ);
+    }
+
+    public void moveTo(double x, double y, double z)
+    {
+        client.send(new ServerboundMovePlayerPosPacket(true, x, y, z));
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 }
