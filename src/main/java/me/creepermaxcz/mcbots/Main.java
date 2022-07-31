@@ -1,5 +1,6 @@
 package me.creepermaxcz.mcbots;
 
+import com.github.steveice10.mc.protocol.data.status.ServerStatusInfo;
 import com.github.steveice10.packetlib.ProxyInfo;
 import org.apache.commons.cli.*;
 import org.xbill.DNS.Lookup;
@@ -206,9 +207,24 @@ public class Main {
             port
         );
 
+        //print info
         Log.info("IP:", inetAddr.getHostString());
         Log.info("Port: " + inetAddr.getPort());
-        Log.info("Count: " + botCount);
+        Log.info("Bot count: " + botCount);
+
+        //get and print server info
+        ServerInfo serverInfo = new ServerInfo(inetAddr);
+        serverInfo.requestInfo();
+        ServerStatusInfo statusInfo = serverInfo.getStatusInfo();
+        Log.info(
+                "Server version: "
+                + statusInfo.getVersionInfo().getVersionName()
+                + " (" + statusInfo.getVersionInfo().getProtocolVersion()
+                + ")"
+        );
+        Log.info("Player Count: " + statusInfo.getPlayerInfo().getOnlinePlayers()
+                + " / " + statusInfo.getPlayerInfo().getMaxPlayers());
+        Log.info();
 
         new Thread(() -> {
             for (int i = 0; i < botCount; i++) {
