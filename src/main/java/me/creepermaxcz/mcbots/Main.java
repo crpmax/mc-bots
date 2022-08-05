@@ -228,15 +228,20 @@ public class Main {
         ServerInfo serverInfo = new ServerInfo(inetAddr);
         serverInfo.requestInfo();
         ServerStatusInfo statusInfo = serverInfo.getStatusInfo();
-        Log.info(
-                "Server version: "
-                + statusInfo.getVersionInfo().getVersionName()
-                + " (" + statusInfo.getVersionInfo().getProtocolVersion()
-                + ")"
-        );
-        Log.info("Player Count: " + statusInfo.getPlayerInfo().getOnlinePlayers()
-                + " / " + statusInfo.getPlayerInfo().getMaxPlayers());
-        Log.info();
+        if (statusInfo != null) {
+            Log.info(
+                    "Server version: "
+                            + statusInfo.getVersionInfo().getVersionName()
+                            + " (" + statusInfo.getVersionInfo().getProtocolVersion()
+                            + ")"
+            );
+            Log.info("Player Count: " + statusInfo.getPlayerInfo().getOnlinePlayers()
+                    + " / " + statusInfo.getPlayerInfo().getMaxPlayers());
+            Log.info();
+        } else {
+            Log.warn("There was an error retrieving server status information. The server may be offline or running on a different version.");
+        }
+
 
         new Thread(() -> {
             for (int i = 0; i < botCount; i++) {
