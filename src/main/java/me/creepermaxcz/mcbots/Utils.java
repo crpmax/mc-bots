@@ -13,7 +13,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +26,12 @@ public class Utils {
         if (message.children().size() > 0) {
             StringBuilder text = new StringBuilder();
             for (Component child : message.children()) {
-                text.append(getFullText((TextComponent) child, colored));
+                if (child instanceof TextComponent) {
+                    text.append(getFullText((TextComponent) child, colored));
+                } else if (child instanceof TranslatableComponent) {
+                    text.append(translate((TranslatableComponent) child));
+                }
+
             }
             return text.toString();
         } else {
