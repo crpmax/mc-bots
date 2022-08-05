@@ -17,6 +17,8 @@ import com.github.steveice10.packetlib.tcp.TcpClientSession;
 import java.net.InetSocketAddress;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Bot extends Thread {
 
@@ -73,7 +75,20 @@ public class Bot extends Thread {
                     connected = false;
                     Log.info();
                     Log.info(nickname + " disconnected");
-                    Log.info(" -> " + event.getReason());
+
+                    //Log.info(" -> " + event.getReason());
+
+                    //fix broken reason string by finding the content with regex
+                    Pattern pattern = Pattern.compile("content=\"(.*?)\"");
+                    Matcher matcher = pattern.matcher(event.getReason());
+
+                    StringBuilder reason = new StringBuilder();
+                    while (matcher.find()) {
+                        reason.append(matcher.group(1));
+                    }
+
+                    Log.info(" -> " + reason.toString());
+
                     if(event.getCause() != null) {
                         event.getCause().printStackTrace();
                     }
