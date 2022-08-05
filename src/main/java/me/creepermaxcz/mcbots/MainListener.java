@@ -21,10 +21,9 @@ public class MainListener implements SessionListener {
         // Instead, they use ClientboundPlayerChatPacket and ClientboundSystemChatPacket for taking care of chat packets.
         Component message = null;
         if(packet instanceof ClientboundPlayerChatPacket) {
-            System.out.println("ClientboundPlayerChatPacket");
-            message = ((ClientboundPlayerChatPacket) packet).getUnsignedContent();
+            // Since we are working on offline server, salt will be 0.
+            message = ((ClientboundPlayerChatPacket) packet).getSignedContent(); // getSignedContent
         } else if (packet instanceof ClientboundSystemChatPacket) {
-            System.out.println("ClientboundSystemChatPacket");
             message = ((ClientboundSystemChatPacket) packet).getContent();
         }
         //Log.chat(message.toString());
