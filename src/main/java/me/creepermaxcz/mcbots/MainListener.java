@@ -1,6 +1,7 @@
 package me.creepermaxcz.mcbots;
 
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundChatPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundPlayerChatPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundSystemChatPacket;
 import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.event.session.*;
 import com.github.steveice10.packetlib.packet.Packet;
@@ -16,17 +17,23 @@ public class MainListener implements SessionListener {
 
     @Override
     public void packetReceived(Session session, Packet packet) {
-        if(packet instanceof ClientboundChatPacket) {
-            Component message = ((ClientboundChatPacket) packet).getMessage();
-            //Log.chat(message.toString());
-            if (message instanceof TextComponent) {
-                TextComponent msg = (TextComponent) message;
-                Log.chat(Utils.getFullText(msg, Main.coloredChat));
-            }
-            if (message instanceof TranslatableComponent) {
-                TranslatableComponent msg = (TranslatableComponent) message;
-                Log.chat("[T]", Utils.translate(msg));
-            }
+        // From 1.19.1 (as well as 1.19), the class ClientboundChatPacket was removed.
+        // Instead, they use ClientboundPlayerChatPacket and ClientboundSystemChatPacket for taking care of chat packets.
+        Component message = null;
+        if(packet instanceof ClientboundPlayerChatPacket) {
+            // Since we are working on offline server, salt will be 0.
+            message = ((ClientboundPlayerChatPacket) packet).getSignedContent(); // getSignedContent
+        } else if (packet instanceof ClientboundSystemChatPacket) {
+            message = ((ClientboundSystemChatPacket) packet).getContent();
+        }
+        //Log.chat(message.toString());
+        if (message instanceof TextComponent) {
+            TextComponent msg = (TextComponent) message;
+            Log.chat(Utils.getFullText(msg, Main.coloredChat));
+        }
+        if (message instanceof TranslatableComponent) {
+            TranslatableComponent msg = (TranslatableComponent) message;
+            Log.chat("[T]", Utils.translate(msg));
         }
     }
 
