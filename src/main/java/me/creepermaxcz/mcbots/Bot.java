@@ -14,6 +14,7 @@ import com.github.steveice10.packetlib.packet.Packet;
 import com.github.steveice10.packetlib.tcp.TcpClientSession;
 
 import java.net.InetSocketAddress;
+import java.time.Instant;
 
 public class Bot extends Thread {
 
@@ -84,7 +85,14 @@ public class Bot extends Thread {
     }
 
     public void sendChat(String text) {
-        client.send(new ServerboundChatPacket(text));
+        // From 1.19.1 or 1.19, the ServerboundChatPacket needs timestamp, salt and signed signature to generate packet.
+        // tmpSignature will provide an empty byte array that can pretend it as signature.
+        byte[] tmpSignature = new byte[0]; // Set it empty byte array.
+        // timeStamp will provide when this message was sent by the user. If this value was not set or was set to 0,
+        // The server console will print out that the message was "expired". To avoid this, set timeStamp as now.
+        long timeStamp = Instant.now().toEpochMilli();
+        // salt is set 0 since this is offline server and no body will check it.
+        client.send(new ServerboundChatPacket(text, timeStamp, 0, tmpSignature, true));
     }
 
 
