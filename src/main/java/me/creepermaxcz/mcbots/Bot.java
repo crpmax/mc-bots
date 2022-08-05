@@ -3,6 +3,7 @@ package me.creepermaxcz.mcbots;
 import com.github.steveice10.mc.protocol.MinecraftProtocol;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.player.*;
@@ -15,6 +16,7 @@ import com.github.steveice10.packetlib.tcp.TcpClientSession;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
+import java.util.HashMap;
 
 public class Bot extends Thread {
 
@@ -85,14 +87,30 @@ public class Bot extends Thread {
     }
 
     public void sendChat(String text) {
-        // From 1.19.1 or 1.19, the ServerboundChatPacket needs timestamp, salt and signed signature to generate packet.
-        // tmpSignature will provide an empty byte array that can pretend it as signature.
-        byte[] tmpSignature = new byte[0]; // Set it empty byte array.
         // timeStamp will provide when this message was sent by the user. If this value was not set or was set to 0,
         // The server console will print out that the message was "expired". To avoid this, set timeStamp as now.
         long timeStamp = Instant.now().toEpochMilli();
-        // salt is set 0 since this is offline server and no body will check it.
-        client.send(new ServerboundChatPacket(text, timeStamp, 0, tmpSignature, true));
+
+        //send command
+        if (text.startsWith("/")) {
+
+            client.send(new ServerboundChatCommandPacket(
+                    text.substring(1), //remove slash on start
+                    timeStamp,
+                    0,
+                    new HashMap<>(),
+                    true
+            ));
+        } else {
+            //send chat message
+
+            // From 1.19.1 or 1.19, the ServerboundChatPacket needs timestamp, salt and signed signature to generate packet.
+            // tmpSignature will provide an empty byte array that can pretend it as signature.
+            byte[] tmpSignature = new byte[0]; // Set it empty byte array.
+            // salt is set 0 since this is offline server and no body will check it.
+            client.send(new ServerboundChatPacket(text, timeStamp, 0, tmpSignature, true));
+        }
+
     }
 
 
