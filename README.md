@@ -1,7 +1,7 @@
 # Minecraft bot stress tester
 🤖 A simple open source app written in Java used for stress testing Minecraft servers with bots (fake players).  
 💥 It can be also used to test plugins or minigames.  
-✔️ The MC version of the bots is 1.18 (supports 1.18.2).
+✔️ The MC version of the bots is 1.19. (Does not support 1.19.1 yet)
 
 ## 🆒 Features
 - ✅ Connect as many bots as you want
