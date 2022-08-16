@@ -8,7 +8,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.Text;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,7 +48,83 @@ public class Utils {
             }
             return out;
         }
+    }
 
+    /**
+     * A static function that gets full text from text components.
+     * From 1.19.1 the protocol does not include sender's information in the message.
+     * Thus, we need to merge two TextComponent (sender and message) and generate a text that consists of sent message.
+     * This means using old getFullText will just send the message. Which does NOT contain username who sent this message
+     * @param sender The TextComponent for sender.
+     * @param message The TextComponent for message.
+     * @param colored Whether if this output was colored or not.
+     * @return Returns String in "Username : Message" format.
+     */
+    public static String getFullText(@Nullable TextComponent sender, TextComponent message, boolean colored) {
+        if (colored) { // Check if we are using colors.
+            Style messageStyle = message.style();
+            StringBuilder outString = new StringBuilder();
+
+            if (sender != null) {
+                Style senderStyle = sender.style();
+                if (senderStyle.color() != null) { // Generate sender text with color.
+                    NamedTextColor color = (NamedTextColor) senderStyle.color();
+                    outString.append(colorize(sender.content(), getColor(color)));
+                } else {
+                    outString.append(sender.content());
+                }
+                outString.append(" : "); // Add delimiter as : between sender and message.
+            }
+
+            if (messageStyle.color() != null) { // Generate message text with color.
+                NamedTextColor color = (NamedTextColor) messageStyle.color();
+                outString.append(colorize(message.content(), getColor(color)));
+            } else {
+                outString.append(message.content());
+            }
+
+            return outString.toString();
+        } else { // When color formatting was disabled.
+            if (sender == null)
+                return message.content();
+            else
+                return sender.content() + " : " + message.content();
+        }
+    }
+
+    /**
+     * A static function that gets full text from text components.
+     * From 1.19.1 the protocol does not include sender's information in the message.
+     * Sometimes the message as component is null. When this happens, this method will show message as String.
+     * Since this is just a String being represented, this will not have formatting on String.
+     * @param sender The TextComponent for sender.
+     * @param message The TextComponent for message.
+     * @param colored Whether if this output was colored or not.
+     * @return Returns String in "Username : Message" format.
+     */
+    public static String getFullText(@Nullable TextComponent sender, String message, boolean colored) {
+        if (colored) { // Check if we are using colors.
+            StringBuilder outString = new StringBuilder();
+
+            if (sender != null) {
+                Style senderStyle = sender.style();
+                if (senderStyle.color() != null) { // Generate sender text with color.
+                    NamedTextColor color = (NamedTextColor) senderStyle.color();
+                    outString.append(colorize(sender.content(), getColor(color)));
+                } else {
+                    outString.append(sender.content());
+                }
+                outString.append(" : "); // Add delimiter as : between sender and message.
+            }
+
+            outString.append(message);
+            return outString.toString();
+        } else { // When color formatting was disabled.
+            if (sender == null)
+                return message;
+            else
+                return sender.content() + " : " + message;
+        }
     }
 
     public static Attribute getColor(NamedTextColor color) {

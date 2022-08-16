@@ -20,17 +20,34 @@ public class MainListener implements SessionListener {
         // From 1.19.1 (as well as 1.19), the class ClientboundChatPacket was removed.
         // Instead, they use ClientboundPlayerChatPacket and ClientboundSystemChatPacket for taking care of chat packets.
         Component message = null;
-        if(packet instanceof ClientboundPlayerChatPacket) {
-            // Since we are working on offline server, salt will be 0.
-            message = ((ClientboundPlayerChatPacket) packet).getSignedContent(); // getSignedContent
-        } else if (packet instanceof ClientboundSystemChatPacket) {
+        Component sender;
+        boolean chatPrintedOut = false;
+
+        if (packet instanceof ClientboundPlayerChatPacket) {
+            ClientboundPlayerChatPacket clientboundPlayerChatPacket = ((ClientboundPlayerChatPacket) packet);
+            message = clientboundPlayerChatPacket.getUnsignedContent();
+            sender = clientboundPlayerChatPacket.getName();
+
+            // Sometimes the message's body gets null.
+            // For example, some commands like /say makes the message content as null.
+            // However, the message exists as in getMessagePlain(), thus can retrieve message using the method.
+            if (message == null) {  // When this message was null.
+                Log.chat(Utils.getFullText((TextComponent) sender, clientboundPlayerChatPacket.getMessagePlain(), Main.coloredChat));
+            } else { // When message exists.
+                Log.chat(Utils.getFullText((TextComponent) sender, (TextComponent) message, Main.coloredChat));
+            }
+            chatPrintedOut = true;
+
+        } else if (packet instanceof ClientboundSystemChatPacket) { // When this was SystemChat packet.
             message = ((ClientboundSystemChatPacket) packet).getContent();
         }
-        //Log.chat(message.toString());
-        if (message instanceof TextComponent) {
+
+        // For output of commands, this is the case where this program prints out the message to user.
+        if (message instanceof TextComponent && !chatPrintedOut) {
             TextComponent msg = (TextComponent) message;
             Log.chat(Utils.getFullText(msg, Main.coloredChat));
         }
+
         if (message instanceof TranslatableComponent) {
             TranslatableComponent msg = (TranslatableComponent) message;
             Log.chat("[T]", Utils.translate(msg));

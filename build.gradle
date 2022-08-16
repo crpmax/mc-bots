@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'me.creepermaxcz.mc-bots'
-version '1.2.4'
+version '1.2.5'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -11,11 +11,12 @@ targetCompatibility = 1.8
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
-    maven { url 'https://repo.opencollab.dev/maven-releases' }
+    maven { url 'https://repo.opencollab.dev/maven-snapshots/' }
+    maven { url 'https://repo.opencollab.dev/maven-releases/' }
 }
 
 dependencies {
-    implementation 'com.github.GeyserMC:MCProtocolLib:1.19-1'
+    implementation 'com.github.steveice10:mcprotocollib:1.19.1-SNAPSHOT'
     implementation 'commons-cli:commons-cli:1.5.0'
     implementation 'com.diogonunes:JColor:5.2.0'
     implementation 'dnsjava:dnsjava:3.4.3'
