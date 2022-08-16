@@ -21,23 +21,33 @@ public class MainListener implements SessionListener {
         // Instead, they use ClientboundPlayerChatPacket and ClientboundSystemChatPacket for taking care of chat packets.
         Component message = null;
         Component sender = null;
+        boolean isMessageNull = false; // For some cases when message is null.
 
         if (packet instanceof ClientboundPlayerChatPacket) {
             ClientboundPlayerChatPacket clientboundPlayerChatPacket = ((ClientboundPlayerChatPacket) packet);
             message = clientboundPlayerChatPacket.getUnsignedContent();
             sender = clientboundPlayerChatPacket.getName();
+            isMessageNull = message == null;
         } else if (packet instanceof ClientboundSystemChatPacket) {
             message = ((ClientboundSystemChatPacket) packet).getContent();
         }
 
-        if (message instanceof TextComponent) {
-            // Log.chat(Utils.getFullText((TextComponent) message, Main.coloredChat)); // Use this for only messages.
-            Log.chat(Utils.getFullText((TextComponent) sender, (TextComponent) message, Main.coloredChat)); // Use this for messages and sender's username.
-        }
+        // For some commands (like /say), ClientboundPlayerChatPacket.getUnsignedContent() is null.
+        // However for those cases, the message is still valid in ClientboundPlayerChatPacket.getMessagePlain()
+        // Thus, this if condition will figure out if this case was the case and prints out message from the packet.
+        if (isMessageNull) { // When this message was null.
+            ClientboundPlayerChatPacket clientboundPlayerChatPacket = ((ClientboundPlayerChatPacket) packet);
+            Log.chat(Utils.getFullText((TextComponent) sender, clientboundPlayerChatPacket.getMessagePlain(), Main.coloredChat));
+        } else {  // If this was normal case when unsigned content was not null.
+            if (message instanceof TextComponent) { // For normal chat packets.
+                // Log.chat(Utils.getFullText((TextComponent) message, Main.coloredChat)); // Use this for only messages.
+                Log.chat(Utils.getFullText((TextComponent) sender, (TextComponent) message, Main.coloredChat)); // Use this for messages and sender's username.
+            }
 
-        if (message instanceof TranslatableComponent) {
-            TranslatableComponent msg = (TranslatableComponent) message;
-            Log.chat("[T]", Utils.translate(msg));
+            if (message instanceof TranslatableComponent) { // For system chat packets (such as user joining server).
+                TranslatableComponent msg = (TranslatableComponent) message;
+                Log.chat("[T]", Utils.translate(msg));
+            }
         }
     }
 

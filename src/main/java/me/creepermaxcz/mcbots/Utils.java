@@ -88,6 +88,37 @@ public class Utils {
         }
     }
 
+    /**
+     * A static function that gets full text from text components.
+     * From 1.19.1 the protocol does not include sender's information in the message.
+     * Sometimes the message as component is null. When this happens, this method will show message as String.
+     * Since this is just a String being represented, this will not have formatting on String.
+     * @param sender The TextComponent for sender.
+     * @param message The TextComponent for message.
+     * @param colored Whether if this output was colored or not.
+     * @return Returns String in "Username : Message" format.
+     */
+    public static String getFullText(TextComponent sender, String message, boolean colored) {
+        if (colored) { // Check if we are using colors.
+            Style senderStyle = sender.style();
+
+            StringBuilder outString = new StringBuilder();
+
+            if (senderStyle.color() != null) { // Generate sender text with color.
+                NamedTextColor color = (NamedTextColor) senderStyle.color();
+                outString.append(colorize(sender.content(), getColor(color)));
+            } else {
+                outString.append(sender.content());
+            }
+
+            outString.append(" : "); // Add delimiter as : between sender and message.
+            outString.append(message);
+            return outString.toString();
+        } else { // When color formating was disabled.
+            return sender.content() + " : " + message;
+        }
+    }
+
     public static Attribute getColor(NamedTextColor color) {
         switch (color.toString()) {
             case "red":
