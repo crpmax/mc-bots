@@ -125,7 +125,6 @@ public class Bot extends Thread {
             // Send chat message
             // From 1.19.1 or 1.19, the ServerboundChatPacket needs timestamp, salt and signed signature to generate packet.
             // tmpSignature will provide an empty byte array that can pretend it as signature.
-            byte[] tmpSignature = new byte[0]; // Set it empty byte array.
             // salt is set 0 since this is offline server and no body will check it.
             client.send(new ServerboundChatPacket(text,
                     timeStamp,

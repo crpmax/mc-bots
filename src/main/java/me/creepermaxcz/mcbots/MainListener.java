@@ -20,18 +20,21 @@ public class MainListener implements SessionListener {
         // From 1.19.1 (as well as 1.19), the class ClientboundChatPacket was removed.
         // Instead, they use ClientboundPlayerChatPacket and ClientboundSystemChatPacket for taking care of chat packets.
         Component message = null;
+        Component sender = null;
 
         if (packet instanceof ClientboundPlayerChatPacket) {
-            message = ((ClientboundPlayerChatPacket) packet).getMessageDecorated();
+            ClientboundPlayerChatPacket clientboundPlayerChatPacket = ((ClientboundPlayerChatPacket) packet);
+            message = clientboundPlayerChatPacket.getUnsignedContent();
+            sender = clientboundPlayerChatPacket.getName();
         } else if (packet instanceof ClientboundSystemChatPacket) {
             message = ((ClientboundSystemChatPacket) packet).getContent();
         }
 
-        //Log.chat(message.toString());
         if (message instanceof TextComponent) {
-            TextComponent msg = (TextComponent) message;
-            Log.chat(Utils.getFullText(msg, Main.coloredChat));
+            // Log.chat(Utils.getFullText((TextComponent) message, Main.coloredChat)); // Use this for only messages.
+            Log.chat(Utils.getFullText((TextComponent) sender, (TextComponent) message, Main.coloredChat)); // Use this for messages and sender's username.
         }
+
         if (message instanceof TranslatableComponent) {
             TranslatableComponent msg = (TranslatableComponent) message;
             Log.chat("[T]", Utils.translate(msg));
