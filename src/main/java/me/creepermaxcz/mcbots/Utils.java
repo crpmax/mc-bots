@@ -84,7 +84,7 @@ public class Utils {
             }
 
             return outString.toString();
-        } else { // When color formating was disabled.
+        } else { // When color formatting was disabled.
             if (sender == null)
                 return message.content();
             else
@@ -119,7 +119,7 @@ public class Utils {
 
             outString.append(message);
             return outString.toString();
-        } else { // When color formating was disabled.
+        } else { // When color formatting was disabled.
             if (sender == null)
                 return message;
             else
