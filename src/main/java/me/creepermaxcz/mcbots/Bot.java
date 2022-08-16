@@ -119,7 +119,7 @@ public class Bot extends Thread {
                     new ArrayList<>(),
                     true,
                     new ArrayList<>(),
-                    new LastSeenMessage(uuid, new byte[0])
+                    null
             ));
         } else {
             // Send chat message
@@ -132,7 +132,7 @@ public class Bot extends Thread {
                     new byte[0],
                     true,
                     new ArrayList<>(),
-                    new LastSeenMessage(uuid, new byte[0])
+                    null
             ));
         }
     }

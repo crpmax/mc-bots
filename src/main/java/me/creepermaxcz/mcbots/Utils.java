@@ -10,6 +10,7 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Text;
 
 import java.io.InputStream;
@@ -59,21 +60,21 @@ public class Utils {
      * @param colored Whether if this output was colored or not.
      * @return Returns String in "Username : Message" format.
      */
-    public static String getFullText(TextComponent sender, TextComponent message, boolean colored) {
+    public static String getFullText(@Nullable TextComponent sender, TextComponent message, boolean colored) {
         if (colored) { // Check if we are using colors.
-            Style senderStyle = sender.style();
             Style messageStyle = message.style();
-
             StringBuilder outString = new StringBuilder();
 
-            if (senderStyle.color() != null) { // Generate sender text with color.
-                NamedTextColor color = (NamedTextColor) senderStyle.color();
-                outString.append(colorize(sender.content(), getColor(color)));
-            } else {
-                outString.append(sender.content());
+            if (sender != null) {
+                Style senderStyle = sender.style();
+                if (senderStyle.color() != null) { // Generate sender text with color.
+                    NamedTextColor color = (NamedTextColor) senderStyle.color();
+                    outString.append(colorize(sender.content(), getColor(color)));
+                } else {
+                    outString.append(sender.content());
+                }
+                outString.append(" : "); // Add delimiter as : between sender and message.
             }
-
-            outString.append(" : "); // Add delimiter as : between sender and message.
 
             if (messageStyle.color() != null) { // Generate message text with color.
                 NamedTextColor color = (NamedTextColor) messageStyle.color();
@@ -84,7 +85,10 @@ public class Utils {
 
             return outString.toString();
         } else { // When color formating was disabled.
-            return sender.content() + " : " + message.content();
+            if (sender == null)
+                return message.content();
+            else
+                return sender.content() + " : " + message.content();
         }
     }
 
@@ -98,24 +102,28 @@ public class Utils {
      * @param colored Whether if this output was colored or not.
      * @return Returns String in "Username : Message" format.
      */
-    public static String getFullText(TextComponent sender, String message, boolean colored) {
+    public static String getFullText(@Nullable TextComponent sender, String message, boolean colored) {
         if (colored) { // Check if we are using colors.
-            Style senderStyle = sender.style();
-
             StringBuilder outString = new StringBuilder();
 
-            if (senderStyle.color() != null) { // Generate sender text with color.
-                NamedTextColor color = (NamedTextColor) senderStyle.color();
-                outString.append(colorize(sender.content(), getColor(color)));
-            } else {
-                outString.append(sender.content());
+            if (sender != null) {
+                Style senderStyle = sender.style();
+                if (senderStyle.color() != null) { // Generate sender text with color.
+                    NamedTextColor color = (NamedTextColor) senderStyle.color();
+                    outString.append(colorize(sender.content(), getColor(color)));
+                } else {
+                    outString.append(sender.content());
+                }
+                outString.append(" : "); // Add delimiter as : between sender and message.
             }
 
-            outString.append(" : "); // Add delimiter as : between sender and message.
             outString.append(message);
             return outString.toString();
         } else { // When color formating was disabled.
-            return sender.content() + " : " + message;
+            if (sender == null)
+                return message;
+            else
+                return sender.content() + " : " + message;
         }
     }
 

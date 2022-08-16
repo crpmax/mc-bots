@@ -41,9 +41,11 @@ public class MainListener implements SessionListener {
         } else {  // If this was normal case when unsigned content was not null.
             if (message instanceof TextComponent) { // For normal chat packets.
                 // Log.chat(Utils.getFullText((TextComponent) message, Main.coloredChat)); // Use this for only messages.
-                Log.chat(Utils.getFullText((TextComponent) sender, (TextComponent) message, Main.coloredChat)); // Use this for messages and sender's username.
+                if (sender != null)
+                    Log.chat(Utils.getFullText((TextComponent) sender, (TextComponent) message, Main.coloredChat)); // Use this for messages and sender's username.
+                else
+                    Log.chat(Utils.getFullText(null, (TextComponent) message, Main.coloredChat)); // Use this for messages and sender's username.
             }
-
             if (message instanceof TranslatableComponent) { // For system chat packets (such as user joining server).
                 TranslatableComponent msg = (TranslatableComponent) message;
                 Log.chat("[T]", Utils.translate(msg));
