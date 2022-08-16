@@ -1,6 +1,7 @@
 package me.creepermaxcz.mcbots;
 
 import com.github.steveice10.mc.protocol.MinecraftProtocol;
+import com.github.steveice10.mc.protocol.data.game.LastSeenMessage;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket;
@@ -16,6 +17,7 @@ import com.github.steveice10.packetlib.tcp.TcpClientSession;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,13 +110,14 @@ public class Bot extends Thread {
 
         //send command
         if (text.startsWith("/")) {
-
             client.send(new ServerboundChatCommandPacket(
-                    text.substring(1), //remove slash on start
+                    text.substring(1),
                     timeStamp,
                     0,
-                    new HashMap<>(),
-                    true
+                    new ArrayList<>(),
+                    true,
+                    new ArrayList<>(),
+                    new LastSeenMessage(null, null)
             ));
         } else {
             //send chat message
@@ -123,7 +126,13 @@ public class Bot extends Thread {
             // tmpSignature will provide an empty byte array that can pretend it as signature.
             byte[] tmpSignature = new byte[0]; // Set it empty byte array.
             // salt is set 0 since this is offline server and no body will check it.
-            client.send(new ServerboundChatPacket(text, timeStamp, 0, tmpSignature, true));
+            client.send(new ServerboundChatPacket(text,
+                    timeStamp,
+                    0,
+                    new byte[0],
+                    true,
+                    new ArrayList<>(),
+                    new LastSeenMessage(null, null)));
         }
 
     }

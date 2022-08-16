@@ -20,12 +20,13 @@ public class MainListener implements SessionListener {
         // From 1.19.1 (as well as 1.19), the class ClientboundChatPacket was removed.
         // Instead, they use ClientboundPlayerChatPacket and ClientboundSystemChatPacket for taking care of chat packets.
         Component message = null;
-        if(packet instanceof ClientboundPlayerChatPacket) {
-            // Since we are working on offline server, salt will be 0.
-            message = ((ClientboundPlayerChatPacket) packet).getSignedContent(); // getSignedContent
+
+        if (packet instanceof ClientboundPlayerChatPacket) {
+            message = ((ClientboundPlayerChatPacket) packet).getMessageDecorated();
         } else if (packet instanceof ClientboundSystemChatPacket) {
             message = ((ClientboundSystemChatPacket) packet).getContent();
         }
+
         //Log.chat(message.toString());
         if (message instanceof TextComponent) {
             TextComponent msg = (TextComponent) message;
