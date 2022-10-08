@@ -36,12 +36,12 @@ This will connect 30 bots to server at 192.168.0.189:25565 with delay 4000-5000 
 `-n` Do not use color in terminal - useful when the terminal does not support it  
 `-m` Minimal run - do not use any listeners, will not receive chat, useful for large amounts of bots  
 `-x` The most minimal run - No listeners, no control, no chat - useful for large amounts of bots for better performance  
-`-t` Set proxy type - SOCKS4 or SOCKS5  
-`-l` Set proxy list file  
+`-t <type>` Set proxy type - SOCKS4 or SOCKS5  
+`-l <path>` Set proxy list file  
 `-g` Try to simulate gravity by falling down  
 `-o` Use online (premium) account (login with Microsoft OAuth)  
 `-ar <delay>` Set auto-respawn delay (default is 100 ms, set to -1 to disable)  
-`--nicks` Set nicknames file  
+`--nicks <file>` Set nicknames file  
 
 ## ⚠ DISCLAIMER
 **This app is made for educational and testing purposes only.  
