@@ -11,6 +11,7 @@ For older MC versions please look in the [releases](https://github.com/crpmax/mc
 - ✅ Set connection delay
 - ✅ Set message or command on join
 - ✅ Generate random or real looking nicknames or load from file
+- ✅ Online (premium) account support with login using Microsoft OAuth - only for migrated accounts
 
 ## 📖 Usage
 Minimal Java version: 8  
@@ -38,6 +39,7 @@ This will connect 30 bots to server at 192.168.0.189:25565 with delay 4000-5000 
 `-t` Set proxy type - SOCKS4 or SOCKS5  
 `-l` Set proxy list file  
 `-g` Try to simulate gravity by falling down  
+`-o` Use online (premium) account (login with Microsoft OAuth)  
 `--nicks` Set nicknames file  
 
 ## ⚠ DISCLAIMER

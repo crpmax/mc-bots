@@ -1,7 +1,10 @@
 package me.creepermaxcz.mcbots;
 
+import com.github.steveice10.mc.auth.service.AuthenticationService;
+import com.github.steveice10.mc.auth.service.SessionService;
+import com.github.steveice10.mc.protocol.MinecraftConstants;
 import com.github.steveice10.mc.protocol.MinecraftProtocol;
-import com.github.steveice10.mc.protocol.data.game.LastSeenMessage;
+import com.github.steveice10.mc.protocol.data.UnexpectedEncryptionException;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket;
@@ -18,7 +21,6 @@ import com.github.steveice10.packetlib.tcp.TcpClientSession;
 import java.net.InetSocketAddress;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +32,6 @@ public class Bot extends Thread {
     private ProxyInfo proxy;
     private InetSocketAddress address;
     private Session client;
-    private UUID uuid;
     private boolean hasMainListener;
 
     private double lastX, lastY, lastZ = -1;
@@ -41,11 +42,24 @@ public class Bot extends Thread {
         this.nickname = nickname;
         this.address = address;
         this.proxy = proxy;
-        this.uuid = UUID.randomUUID(); // Add random UUID for sending message.
 
         Log.info("Creating bot", nickname);
         protocol = new MinecraftProtocol(nickname);
         client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, proxy);
+    }
+
+    public Bot(AuthenticationService authService, InetSocketAddress address, ProxyInfo proxy) {
+        this.nickname = authService.getUsername();
+        this.address = address;
+        this.proxy = proxy;
+
+        Log.info("Creating bot", nickname);
+        protocol = new MinecraftProtocol(authService.getSelectedProfile(), authService.getAccessToken());
+
+        client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, proxy);
+
+        SessionService sessionService = new SessionService();
+        client.setFlag(MinecraftConstants.SESSION_SERVICE_KEY, sessionService);
     }
 
     @Override
@@ -95,6 +109,11 @@ public class Bot extends Thread {
 
                     if(event.getCause() != null) {
                         event.getCause().printStackTrace();
+
+                        if (event.getCause() instanceof UnexpectedEncryptionException) {
+                            Log.warn("Server is running in online (premium) mode. Please use the -o option to use online mode bot.");
+                            System.exit(1);
+                        }
                     }
                     Log.info();
                     Main.removeBot(Bot.this);

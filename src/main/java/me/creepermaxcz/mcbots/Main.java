@@ -1,5 +1,9 @@
 package me.creepermaxcz.mcbots;
 
+import com.github.steveice10.mc.auth.exception.request.AuthPendingException;
+import com.github.steveice10.mc.auth.service.AuthenticationService;
+import com.github.steveice10.mc.auth.service.MsaAuthenticationService;
+import com.github.steveice10.mc.auth.util.HTTP;
 import com.github.steveice10.mc.protocol.data.status.ServerStatusInfo;
 import com.github.steveice10.packetlib.ProxyInfo;
 import org.apache.commons.cli.*;
@@ -11,10 +15,7 @@ import org.xbill.DNS.Type;
 import java.io.*;
 import java.net.*;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 public class Main {
@@ -36,6 +37,8 @@ public class Main {
     private static int proxyIndex = 0;
     private static int proxyCount = 0;
     private static ProxyInfo.Type proxyType;
+
+    private static final String CLIENT_ID = "8bef943e-5a63-429e-a93a-96391d2e32a9";
 
     private static Timer timer = new Timer();
 
@@ -66,6 +69,8 @@ public class Main {
         options.addOption(null, "nicks", true, "Path to nicks file with nick on every line");
 
         options.addOption("g", "gravity", false, "Try to simulate gravity by falling down");
+
+        options.addOption("o", "online", false, "Use online mode (premium) account");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -242,7 +247,55 @@ public class Main {
             Log.warn("There was an error retrieving server status information. The server may be offline or running on a different version.");
         }
 
+        AuthenticationService authService = null;
+        if (cmd.hasOption("o")) {
+            Log.warn("Online mode enabled. The bot count will be set to 1.");
+            botCount = 1;
 
+            // Create request parameters map
+            Map<String, String> params = new HashMap<>();
+            params.put("client_id", CLIENT_ID);
+            params.put("scope", "XboxLive.signin");
+
+            // Send request to Microsoft OAuth api
+            // https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
+            URI endpointURI = URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode");
+            MsaAuthenticationService.MsCodeResponse response = HTTP.makeRequestForm(
+                    Proxy.NO_PROXY, endpointURI, params, MsaAuthenticationService.MsCodeResponse.class
+            );
+            try {
+                Log.info("Please go to " + response.verification_uri.toURL() + " to authenticate your account - Code: " + response.user_code);
+            } catch (MalformedURLException e) {
+                Log.error("Error while trying to get the url of the authentication page");
+            }
+
+            authService = new MsaAuthenticationService(CLIENT_ID, response.device_code);
+
+            // Wait for user to login on microsoft page
+            int retryMax = 20;
+            while (true) {
+                try {
+                    authService.login();
+                    break;
+                } catch (Exception e) {
+                    if (e instanceof AuthPendingException) {
+                        Log.info("Authentication is pending, waiting for user to authenticate...");
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException ignored) {
+                        }
+                        if (retryMax == 0)
+                            throw e;
+                        retryMax--;
+                    } else {
+                        throw e;
+                    }
+
+                }
+            }
+        }
+
+        AuthenticationService finalAuthService = authService;
         new Thread(() -> {
             for (int i = 0; i < botCount; i++) {
                 try {
@@ -271,11 +324,21 @@ public class Main {
 
                     }
 
-                    Bot bot = new Bot(
-                            nickGen.nextNick(),
-                            inetAddr,
-                            proxyInfo
-                    );
+                    Bot bot = null;
+                    if (finalAuthService != null) {
+                        bot = new Bot(
+                                finalAuthService,
+                                inetAddr,
+                                proxyInfo
+                        );
+                    } else {
+                        bot = new Bot(
+                                nickGen.nextNick(),
+                                inetAddr,
+                                proxyInfo
+                        );
+                    }
+
                     bot.start();
 
                     if (!mostMinimal) bots.add(bot);
