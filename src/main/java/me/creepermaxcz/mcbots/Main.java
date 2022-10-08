@@ -32,6 +32,8 @@ public class Main {
     private static boolean mostMinimal = false;
     public static String joinMessage;
 
+    public static int autoRespawnDelay = 100;
+
     private static boolean useProxies = false;
     private static final ArrayList<InetSocketAddress> proxies = new ArrayList<>();
     private static int proxyIndex = 0;
@@ -72,6 +74,8 @@ public class Main {
 
         options.addOption("o", "online", false, "Use online mode (premium) account");
 
+        options.addOption("ar", "auto-respawn", true, "Set autorespawn delay (-1 to disable)");
+
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
 
@@ -82,6 +86,8 @@ public class Main {
             formatter.printHelp("mcbots", e.getMessage(), options, "\nhttps://github.com/crpmax/mc-bots",true);
             System.exit(1);
         }
+
+        autoRespawnDelay = Integer.parseInt(cmd.getOptionValue("ar", "100"));
 
         if (cmd.hasOption('t') && cmd.hasOption('l')) {
             String typeStr = cmd.getOptionValue('t').toUpperCase();

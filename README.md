@@ -40,6 +40,7 @@ This will connect 30 bots to server at 192.168.0.189:25565 with delay 4000-5000 
 `-l` Set proxy list file  
 `-g` Try to simulate gravity by falling down  
 `-o` Use online (premium) account (login with Microsoft OAuth)  
+`-ar <delay>` Set auto-respawn delay (default is 100 ms, set to -1 to disable)  
 `--nicks` Set nicknames file  
 
 ## ⚠ DISCLAIMER

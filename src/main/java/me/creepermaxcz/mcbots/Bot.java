@@ -5,10 +5,14 @@ import com.github.steveice10.mc.auth.service.SessionService;
 import com.github.steveice10.mc.protocol.MinecraftConstants;
 import com.github.steveice10.mc.protocol.MinecraftProtocol;
 import com.github.steveice10.mc.protocol.data.UnexpectedEncryptionException;
+import com.github.steveice10.mc.protocol.data.game.ClientCommand;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundRespawnPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerCombatKillPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.player.*;
 import com.github.steveice10.packetlib.ProxyInfo;
@@ -21,6 +25,8 @@ import com.github.steveice10.packetlib.tcp.TcpClientSession;
 import java.net.InetSocketAddress;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,6 +91,21 @@ public class Bot extends Thread {
                         lastZ = p.getZ();
 
                         client.send(new ServerboundAcceptTeleportationPacket(p.getTeleportId()));
+                    }
+                    else if (packet instanceof ClientboundPlayerCombatKillPacket){
+                        if (Main.autoRespawnDelay >= 0) {
+                            Log.info("Bot " + nickname + " died. Respawning in " + Main.autoRespawnDelay + " ms.");
+                            new Timer().schedule(
+                                    new TimerTask() {
+                                        @Override
+                                        public void run() {
+                                            client.send(new ServerboundClientCommandPacket(ClientCommand.RESPAWN));
+                                        }
+                                    },
+                                    Main.autoRespawnDelay
+                            );
+
+                        }
                     }
                 }
 
