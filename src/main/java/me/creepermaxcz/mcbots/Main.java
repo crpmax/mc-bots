@@ -390,7 +390,7 @@ public class Main {
             String line = scanner.nextLine();
 
             if (line.isEmpty()) {
-                System.out.print(prompt + "> ");
+                System.out.print(getPrompt() + "> ");
                 continue;
             }
 
@@ -430,10 +430,8 @@ public class Main {
                                     .collect(Collectors.joining(", "));
 
                             if (newBotCount == 1) {
-                                prompt = botNames;
                                 Log.info("Now controlling 1 bot: " + botNames);
                             } else {
-                                prompt = newBotCount + " BOTS";
                                 Log.info("Now controlling " + newBotCount + " bots: " + botNames);
                             }
 
@@ -445,7 +443,6 @@ public class Main {
                     } else {
                         // If no bot names are supplied, remove all bots
                         controlledBots.clear();
-                        prompt = "ALL";
                         Log.info("No bots selected - now controlling all bots.");
                     }
                 }
@@ -457,6 +454,21 @@ public class Main {
                     Log.info("There are " + bots.size() + " bots connected:");
                     for (Bot bot : bots) {
                         Log.info(bot.getNickname(), bot.hasMainListener() ? "[MainListener]" : "");
+                    }
+                }
+
+                else if (commandName.equalsIgnoreCase("leave") || commandName.equalsIgnoreCase("exit"))
+                {
+                    if (!controlledBots.isEmpty()) {
+                        Log.info("Disconnecting controlled bots.");
+                        for (Bot bot : controlledBots) {
+                            bot.disconnect();
+                        }
+                    } else {
+                        Log.info("Disconnecting all bots.");
+                        for (Bot bot : bots) {
+                            bot.disconnect();
+                        }
                     }
                 }
 
@@ -485,6 +497,7 @@ public class Main {
 
     public static synchronized void removeBot(Bot bot) {
         bots.remove(bot);
+        controlledBots.remove(bot);
         if (bot.hasMainListener()) {
             Log.info("Bot with MainListener removed");
             isMainListenerMissing = true;
@@ -521,5 +534,20 @@ public class Main {
             }
         }
         return null;
+    }
+
+    public static String getPrompt()
+    {
+        int count = controlledBots.size();
+        if (count == 0) {
+            return "ALL";
+        } else if (count == 1)
+        {
+            //If controlling only one bot, return its nickname
+            return controlledBots.iterator().next().getNickname();
+        }
+        else {
+            return count + " BOTS";
+        }
     }
 }

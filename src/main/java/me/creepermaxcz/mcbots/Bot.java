@@ -44,6 +44,8 @@ public class Bot extends Thread {
 
     private boolean connected;
 
+    private boolean manualDisconnecting = false;
+
     public Bot(String nickname, InetSocketAddress address, ProxyInfo proxy) {
         this.nickname = nickname;
         this.address = address;
@@ -112,32 +114,35 @@ public class Bot extends Thread {
                 @Override
                 public void disconnected(DisconnectedEvent event) {
                     connected = false;
-                    Log.info();
+                    Main.removeBot(Bot.this);
                     Log.info(nickname + " disconnected");
 
-                    //Log.info(" -> " + event.getReason());
+                    // Do not write disconnect reason if disconnected by command
+                    if (!manualDisconnecting) {
+                        //Log.info(" -> " + event.getReason());
 
-                    //fix broken reason string by finding the content with regex
-                    Pattern pattern = Pattern.compile("content=\"(.*?)\"");
-                    Matcher matcher = pattern.matcher(event.getReason());
+                        //fix broken reason string by finding the content with regex
+                        Pattern pattern = Pattern.compile("content=\"(.*?)\"");
+                        Matcher matcher = pattern.matcher(event.getReason());
 
-                    StringBuilder reason = new StringBuilder();
-                    while (matcher.find()) {
-                        reason.append(matcher.group(1));
-                    }
-
-                    Log.info(" -> " + reason.toString());
-
-                    if(event.getCause() != null) {
-                        event.getCause().printStackTrace();
-
-                        if (event.getCause() instanceof UnexpectedEncryptionException) {
-                            Log.warn("Server is running in online (premium) mode. Please use the -o option to use online mode bot.");
-                            System.exit(1);
+                        StringBuilder reason = new StringBuilder();
+                        while (matcher.find()) {
+                            reason.append(matcher.group(1));
                         }
+
+                        Log.info(" -> " + reason.toString());
+
+                        if(event.getCause() != null) {
+                            event.getCause().printStackTrace();
+
+                            if (event.getCause() instanceof UnexpectedEncryptionException) {
+                                Log.warn("Server is running in online (premium) mode. Please use the -o option to use online mode bot.");
+                                System.exit(1);
+                            }
+                        }
+                        Log.info();
                     }
-                    Log.info();
-                    Main.removeBot(Bot.this);
+
                     Thread.currentThread().interrupt();
                 }
             });
@@ -213,5 +218,11 @@ public class Bot extends Thread {
 
     public boolean isConnected() {
         return connected;
+    }
+
+    public void disconnect()
+    {
+        manualDisconnecting = true;
+        client.disconnect("Leaving");
     }
 }
