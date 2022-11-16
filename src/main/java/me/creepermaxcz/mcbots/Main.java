@@ -459,14 +459,33 @@ public class Main {
 
                 else if (commandName.equalsIgnoreCase("leave") || commandName.equalsIgnoreCase("exit"))
                 {
+                    int limit = -1;
+                    if (split.length >= 2) {
+                        try {
+                            limit = Integer.parseInt(split[1]);
+                        } catch (NumberFormatException e) {
+                            limit = 0;
+                            Log.warn("Invalid limit.");
+                        }
+                    }
+
+                    int i = 0;
                     if (!controlledBots.isEmpty()) {
                         Log.info("Disconnecting controlled bots.");
                         for (Bot bot : controlledBots) {
+                            if (i++ == limit) {
+                                break;
+                            }
+
                             bot.disconnect();
                         }
                     } else {
                         Log.info("Disconnecting all bots.");
                         for (Bot bot : bots) {
+                            if (i++ == limit) {
+                                break;
+                            }
+
                             bot.disconnect();
                         }
                     }
