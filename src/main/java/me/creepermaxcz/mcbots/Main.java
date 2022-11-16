@@ -430,11 +430,11 @@ public class Main {
                                     .collect(Collectors.joining(", "));
 
                             if (newBotCount == 1) {
-                                Log.info("Now controlling 1 bot: " + botNames);
                                 prompt = botNames;
+                                Log.info("Now controlling 1 bot: " + botNames);
                             } else {
-                                Log.info("Now controlling " + newBotCount + " bots: " + botNames);
                                 prompt = newBotCount + " BOTS";
+                                Log.info("Now controlling " + newBotCount + " bots: " + botNames);
                             }
 
                         } else {
@@ -462,7 +462,7 @@ public class Main {
 
             Thread.sleep(50);
 
-            System.out.print("\r"  +prompt + "> ");
+            //System.out.print("\r"  +prompt + "> ");
 
         }
     }
