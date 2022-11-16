@@ -9,6 +9,7 @@ public class Log {
 
     public static void log(String in) {
         System.out.println("\r[" + formatter.format(new Date()) + "] " + in);
+        System.out.print(Main.prompt + "> ");
     }
 
     public static void error(String in) {

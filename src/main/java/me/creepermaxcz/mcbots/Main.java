@@ -16,6 +16,7 @@ import java.io.*;
 import java.net.*;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class Main {
@@ -32,6 +33,8 @@ public class Main {
     private static boolean mostMinimal = false;
     public static String joinMessage;
 
+    public static String prompt = "?";
+
     public static int autoRespawnDelay = 100;
 
     private static boolean useProxies = false;
@@ -43,6 +46,7 @@ public class Main {
     private static final String CLIENT_ID = "8bef943e-5a63-429e-a93a-96391d2e32a9";
 
     private static Timer timer = new Timer();
+    private static final HashSet<Bot> controlledBots = new HashSet<>();
 
     public static void main(String[] args) throws Exception {
 
@@ -381,14 +385,85 @@ public class Main {
 
 
         Scanner scanner = new Scanner(System.in);
-
+        prompt = "ALL";
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if (line.isEmpty()) continue;
 
-            bots.forEach(bot -> bot.sendChat(line));
+            if (line.isEmpty()) {
+                System.out.print(prompt + "> ");
+                continue;
+            }
+
+            if (line.startsWith("!") || line.startsWith(".")) {
+                String command = line.substring(1);
+                String[] split = command.split(" ");
+                String commandName = split[0];
+
+                // Bot control selection
+                if (
+                        commandName.equalsIgnoreCase("control") || commandName.equalsIgnoreCase("ctrl")
+                ) {
+                    if (split.length >= 2) {
+
+                        controlledBots.clear();
+                        int newBotCount = 0;
+
+                        // Search for all bot names, from index 1 - skip command name
+                        for (int i = 1; i < split.length; i++) {
+                            String searchedName = split[i];
+                            Bot bot = findBotByName(searchedName);
+
+                            if (bot != null) {
+                                controlledBots.add(bot);
+                                newBotCount++;
+                            } else {
+                                Log.warn("Bot not found: " + searchedName);
+                            }
+                        }
+
+
+                        if (newBotCount > 0) {
+                            // Join bot nicknames
+                            String botNames = controlledBots
+                                    .stream()
+                                    .map(Bot::getNickname)
+                                    .collect(Collectors.joining(", "));
+
+                            if (newBotCount == 1) {
+                                Log.info("Now controlling 1 bot: " + botNames);
+                                prompt = botNames;
+                            } else {
+                                Log.info("Now controlling " + newBotCount + " bots: " + botNames);
+                                prompt = newBotCount + " BOTS";
+                            }
+
+                        } else {
+                            Log.warn("No bots found.");
+                        }
+
+
+                    } else {
+                        // If no bot names are supplied, remove all bots
+                        controlledBots.clear();
+                        prompt = "ALL";
+                        Log.info("No bots selected - now controlling all bots.");
+                    }
+                } else {
+                    Log.warn("Invalid command");
+                }
+            }
+
+            else if (controlledBots.size() > 0) {
+                controlledBots.forEach(bot -> bot.sendChat(line));
+            }
+            else {
+                bots.forEach(bot -> bot.sendChat(line));
+            }
 
             Thread.sleep(50);
+
+            System.out.print("\r"  +prompt + "> ");
+
         }
     }
 
@@ -423,5 +498,16 @@ public class Main {
 
     public static boolean isMinimal() {
         return minimal;
+    }
+
+    public static Bot findBotByName(String text) {
+        for (Bot bot : bots) {
+            // Starts with and ignore case
+            // https://stackoverflow.com/a/38947571/11787611
+            if (bot.getNickname().regionMatches(true, 0, text, 0, text.length())) {
+                return bot;
+            }
+        }
+        return null;
     }
 }
