@@ -448,7 +448,19 @@ public class Main {
                         prompt = "ALL";
                         Log.info("No bots selected - now controlling all bots.");
                     }
-                } else {
+                }
+
+
+                // List command
+                else if (commandName.equalsIgnoreCase("list") || commandName.equalsIgnoreCase("ls"))
+                {
+                    Log.info("There are " + bots.size() + " bots connected:");
+                    for (Bot bot : bots) {
+                        Log.info(bot.getNickname(), bot.hasMainListener() ? "[MainListener]" : "");
+                    }
+                }
+
+                else {
                     Log.warn("Invalid command");
                 }
             }
