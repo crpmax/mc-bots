@@ -1,24 +1,26 @@
 package me.creepermaxcz.mcbots;
 
-import java.io.*;
-import java.net.InetSocketAddress;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class NickGenerator {
 
     private static final int NICK_LEN = 16;
-    private final SecureRandom random = new SecureRandom();
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
-    private final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private final char[] CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
     private final int charsLen = 62;
 
     private int linesSize;
-    private List<String> lines;
+    private Set<String> lines;
 
     private int nickLen = NICK_LEN;
 
@@ -27,7 +29,7 @@ public class NickGenerator {
     private String prefix = "";
 
     public int loadFromFile(String filePath) {
-        lines = new ArrayList<>();
+        lines = new HashSet<>();
         try {
             Scanner scanner = new Scanner(new File(filePath));
             while (scanner.hasNextLine()) {
@@ -35,11 +37,25 @@ public class NickGenerator {
                     String line = scanner.nextLine().trim();
 
                     //add only valid nicknames
-                    if (line.matches("^[a-zA-Z0-9_]{3,16}$")) {
-                        lines.add(line);
+                    switch (line.length()) {
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+                        case 8:
+                        case 9:
+                        case 10:
+                        case 11:
+                        case 12:
+                        case 13:
+                        case 14:
+                        case 15:
+                        case 16:
+                            lines.add(line);
+                            break;
                     }
-                }
-                catch (Exception ignored) { }
+                } catch (Exception ignored) { }
             }
             scanner.close();
         } catch (FileNotFoundException e) {
@@ -56,10 +72,10 @@ public class NickGenerator {
 
     private void loadLines() {
         try (InputStream resource = getClass().getResourceAsStream("/files/nicks.txt")) {
-            lines = new BufferedReader(
-                    new InputStreamReader(resource, StandardCharsets.UTF_8)).lines().collect(Collectors.toList()
-            );
-            linesSize = lines.size();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource, StandardCharsets.UTF_8))) {
+                lines = reader.lines().collect(Collectors.toSet());
+                linesSize = lines.size();
+            }
         } catch (Exception e) {
             Log.error(e);
             System.exit(1);
@@ -69,19 +85,18 @@ public class NickGenerator {
     public String generateRandom(int len) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < len; i++) {
-            result.append(CHARS.charAt(random.nextInt(charsLen)));
+            result.append(CHARS[random.nextInt(charsLen)]);
         }
         return result.toString();
     }
-    
+
     public String nextRandom() {
         return prefix + generateRandom(nickLen);
     }
 
     public String nextReal() {
-        String nick = prefix + lines.get(random.nextInt(linesSize));
+        String nick = prefix + lines.toArray(new String[0])[random.nextInt(linesSize)];
         return nick.length() <= 16 ? nick : nick.substring(0, 15);
-
     }
 
     /**
