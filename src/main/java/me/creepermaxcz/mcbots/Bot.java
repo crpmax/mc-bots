@@ -7,24 +7,25 @@ import com.github.steveice10.mc.protocol.MinecraftProtocol;
 import com.github.steveice10.mc.protocol.data.UnexpectedEncryptionException;
 import com.github.steveice10.mc.protocol.data.game.ClientCommand;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundRespawnPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerCombatKillPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.serverbound.player.*;
+import com.github.steveice10.mc.protocol.packet.ingame.serverbound.player.ServerboundMovePlayerPosPacket;
 import com.github.steveice10.packetlib.ProxyInfo;
 import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
 import com.github.steveice10.packetlib.event.session.SessionAdapter;
 import com.github.steveice10.packetlib.packet.Packet;
 import com.github.steveice10.packetlib.tcp.TcpClientSession;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
@@ -84,8 +85,7 @@ public class Bot extends Thread {
                         if (Main.joinMessage != null) {
                             sendChat(Main.joinMessage);
                         }
-                    }
-                    else if (packet instanceof ClientboundPlayerPositionPacket) {
+                    } else if (packet instanceof ClientboundPlayerPositionPacket) {
                         ClientboundPlayerPositionPacket p = (ClientboundPlayerPositionPacket) packet;
 
                         lastX = p.getX();
@@ -93,8 +93,7 @@ public class Bot extends Thread {
                         lastZ = p.getZ();
 
                         client.send(new ServerboundAcceptTeleportationPacket(p.getTeleportId()));
-                    }
-                    else if (packet instanceof ClientboundPlayerCombatKillPacket){
+                    } else if (packet instanceof ClientboundPlayerCombatKillPacket) {
                         if (Main.autoRespawnDelay >= 0) {
                             Log.info("Bot " + nickname + " died. Respawning in " + Main.autoRespawnDelay + " ms.");
                             new Timer().schedule(
@@ -123,7 +122,7 @@ public class Bot extends Thread {
 
                         //fix broken reason string by finding the content with regex
                         Pattern pattern = Pattern.compile("content=\"(.*?)\"");
-                        Matcher matcher = pattern.matcher(event.getReason());
+                        Matcher matcher = pattern.matcher(GsonComponentSerializer.gson().serialize(event.getReason()));
 
                         StringBuilder reason = new StringBuilder();
                         while (matcher.find()) {
@@ -132,7 +131,7 @@ public class Bot extends Thread {
 
                         Log.info(" -> " + reason.toString());
 
-                        if(event.getCause() != null) {
+                        if (event.getCause() != null) {
                             event.getCause().printStackTrace();
 
                             if (event.getCause() instanceof UnexpectedEncryptionException) {
@@ -162,9 +161,8 @@ public class Bot extends Thread {
                     timeStamp,
                     0,
                     new ArrayList<>(),
-                    true,
-                    new ArrayList<>(),
-                    null
+                    0,
+                    new BitSet()
             ));
         } else {
             // Send chat message
@@ -175,9 +173,8 @@ public class Bot extends Thread {
                     timeStamp,
                     0,
                     new byte[0],
-                    true,
-                    new ArrayList<>(),
-                    null
+                    0,
+                    new BitSet()
             ));
         }
     }
@@ -196,23 +193,20 @@ public class Bot extends Thread {
         return hasMainListener;
     }
 
-    public void fallDown()
-    {
+    public void fallDown() {
         if (connected && lastY > 0) {
             move(0, -0.5, 0);
         }
     }
 
-    public void move(double x, double y, double z)
-    {
+    public void move(double x, double y, double z) {
         lastX += x;
         lastY += y;
         lastZ += z;
         moveTo(lastX, lastY, lastZ);
     }
 
-    public void moveTo(double x, double y, double z)
-    {
+    public void moveTo(double x, double y, double z) {
         client.send(new ServerboundMovePlayerPosPacket(true, x, y, z));
     }
 
@@ -220,8 +214,7 @@ public class Bot extends Thread {
         return connected;
     }
 
-    public void disconnect()
-    {
+    public void disconnect() {
         manualDisconnecting = true;
         client.disconnect("Leaving");
     }
