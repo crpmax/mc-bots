@@ -81,8 +81,16 @@ public class Bot extends Thread {
                     if (packet instanceof ClientboundLoginPacket) {
                         connected = true;
                         Log.info(nickname + " connected");
-                        if (Main.joinMessage != null) {
-                            sendChat(Main.joinMessage);
+
+                        if (Main.joinMessages.size() > 0) {
+                            for (String msg : Main.joinMessages) {
+                                sendChat(msg);
+
+                                try {
+                                    Thread.sleep(100);
+                                } catch (InterruptedException ignored) {
+                                }
+                            }
                         }
                     }
                     else if (packet instanceof ClientboundPlayerPositionPacket) {
@@ -114,7 +122,6 @@ public class Bot extends Thread {
                 @Override
                 public void disconnected(DisconnectedEvent event) {
                     connected = false;
-                    Main.removeBot(Bot.this);
                     Log.info(nickname + " disconnected");
 
                     // Do not write disconnect reason if disconnected by command
@@ -142,6 +149,8 @@ public class Bot extends Thread {
                         }
                         Log.info();
                     }
+
+                    Main.removeBot(Bot.this);
 
                     Thread.currentThread().interrupt();
                 }

@@ -31,7 +31,7 @@ public class Main {
     private static int delayMax = 5000;
     private static boolean minimal = false;
     private static boolean mostMinimal = false;
-    public static String joinMessage;
+    public static ArrayList<String> joinMessages = new ArrayList<>();
 
     public static String prompt = "?";
 
@@ -188,7 +188,14 @@ public class Main {
         String address = cmd.getOptionValue('s');
         coloredChat = !cmd.hasOption('n');
 
-        joinMessage = cmd.getOptionValue('j');
+        if (cmd.hasOption('j')) {
+            // Split messages by &&, trim and append to arraylist
+            String[] messages = cmd.getOptionValue('j').split("&&");
+            for (String msg : messages) {
+                joinMessages.add(msg.trim());
+            }
+        }
+
 
         int port = 25565;
         if (address.contains(":")) {

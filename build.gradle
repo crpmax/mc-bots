@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'me.creepermaxcz.mc-bots'
-version '1.2.5'
+version '1.2.6'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.steveice10:mcprotocollib:1.19.1-SNAPSHOT'
+    implementation 'com.github.steveice10:mcprotocollib:1.19.2-1'
     implementation 'commons-cli:commons-cli:1.5.0'
     implementation 'com.diogonunes:JColor:5.2.0'
     implementation 'dnsjava:dnsjava:3.4.3'
