@@ -67,7 +67,7 @@ public class Main {
         options.addOption("p", "prefix", true, "bot nick prefix");
         options.addOption("m", "minimal", false, "minimal run without any listeners");
         options.addOption("x", "most-minimal", false, "minimal run without any control, just connect the bots");
-        options.addOption("j", "join-msg", true, "join message / command");
+        options.addOption("j", "join-msg", true, "join messages / commands, separated by &&");
 
         options.addOption("l", "proxy-list", true, "Path or URL to proxy list file with proxy:port on every line");
         options.addOption("t", "proxy-type", true, "Proxy type: SOCKS4 or SOCKS5");

@@ -30,7 +30,7 @@ This will connect 30 bots to server at 192.168.0.189:25565 with delay 4000-5000 
 ## ⚡ Options
 `-c <count>` The count of bots to connect, default is 1  
 `-d <min> <max>` Set the minimum and maximum connection delay range in ms, default is 4000-5000  
-`-j <message>` The message or command to send on join, does not work with `-m` or `-x` option  
+`-j <message>` Messages or commands to send on join, separated by `&&`, does not work with `-m` or `-x` option  
 `-p <prefix>` Custom bot nickname prefix eg. `BOT_`  
 `-r` Generate real looking nicknames instead of random ones  
 `-n` Do not use color in terminal - useful when the terminal does not support it  
