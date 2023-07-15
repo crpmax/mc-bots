@@ -9,9 +9,10 @@ For older MC versions please look in the [releases](https://github.com/crpmax/mc
 - ✅ Use SOCKS4 or SOCKS5 proxies from file or URL
 - ✅ Receive colored or noncolored chat
 - ✅ Set connection delay
-- ✅ Set message or command on join
+- ✅ Set messages or commands on join
 - ✅ Generate random or real looking nicknames or load from file
-- ✅ Online (premium) account support with login using Microsoft OAuth - only for migrated accounts
+- ✅ Online (premium) account support with login using Microsoft OAuth - only for migrated accounts  
+- ✅ Control all or selected bots
 
 ## 📖 Usage
 Minimal Java version: 8  
@@ -20,7 +21,7 @@ Use of pre-compiled jar from [releases](https://github.com/crpmax/mc-bots/releas
 When running, you can write a chat message to the terminal to send it by all bots.
 
 ## 🧪 Example
-`java -jar mc-bots-1.2.4.jar -s 192.168.0.189:25565 -p BOT_ -d 4000 5000 -c 30 -r`  
+`java -jar mc-bots-1.2.6.jar -s 192.168.0.189:25565 -p BOT_ -d 4000 5000 -c 30 -r`  
 This will connect 30 bots to server at 192.168.0.189:25565 with delay 4000-5000 ms and will use real-looking nicknames prefixed with BOT_
 
 <img src="https://imgur.com/XWcckas.png" title="Connected bots" width="350px"/>
@@ -42,6 +43,14 @@ This will connect 30 bots to server at 192.168.0.189:25565 with delay 4000-5000 
 `-o` Use online (premium) account (login with Microsoft OAuth)  
 `-ar <delay>` Set auto-respawn delay (default is 100 ms, set to -1 to disable)  
 `--nicks <file>` Set nicknames file  
+
+
+## Commands
+Commands can be typed to the console. They are prefixed with `.` or `!`.
+Without the prefix it will be sent as a chat message!  
+`.list` or `.ls` - list all connected bots  
+`.control <nick>` or `.ctrl <nick>` - select one or multiple bots to control  
+`.exit <limit>` or `.leave <limit>` - disconnect all or specified number of bots   
 
 ## ⚠ DISCLAIMER
 **This app is made for educational and testing purposes only.  
