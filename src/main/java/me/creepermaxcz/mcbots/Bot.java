@@ -7,7 +7,6 @@ import com.github.steveice10.mc.protocol.MinecraftProtocol;
 import com.github.steveice10.mc.protocol.data.UnexpectedEncryptionException;
 import com.github.steveice10.mc.protocol.data.game.ClientCommand;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundRespawnPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerCombatKillPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket;
@@ -24,9 +23,7 @@ import com.github.steveice10.packetlib.tcp.TcpClientSession;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -126,11 +123,9 @@ public class Bot extends Thread {
 
                     // Do not write disconnect reason if disconnected by command
                     if (!manualDisconnecting) {
-                        //Log.info(" -> " + event.getReason());
-
-                        //fix broken reason string by finding the content with regex
+                        // Fix broken reason string by finding the content with regex
                         Pattern pattern = Pattern.compile("content=\"(.*?)\"");
-                        Matcher matcher = pattern.matcher(event.getReason());
+                        Matcher matcher = pattern.matcher(String.valueOf(event.getReason()));
 
                         StringBuilder reason = new StringBuilder();
                         while (matcher.find()) {
@@ -169,24 +164,24 @@ public class Bot extends Thread {
             client.send(new ServerboundChatCommandPacket(
                     text.substring(1),
                     timeStamp,
+                    0L,
+                    Collections.emptyList(),
                     0,
-                    new ArrayList<>(),
-                    true,
-                    new ArrayList<>(),
-                    null
+                    new BitSet()
             ));
         } else {
             // Send chat message
             // From 1.19.1 or 1.19, the ServerboundChatPacket needs timestamp, salt and signed signature to generate packet.
             // tmpSignature will provide an empty byte array that can pretend it as signature.
             // salt is set 0 since this is offline server and no body will check it.
-            client.send(new ServerboundChatPacket(text,
-                    timeStamp,
+
+            client.send(new ServerboundChatPacket(
+                    text,
+                    Instant.now().toEpochMilli(),
+                    0L,
+                    null,
                     0,
-                    new byte[0],
-                    true,
-                    new ArrayList<>(),
-                    null
+                    new BitSet()
             ));
         }
     }
