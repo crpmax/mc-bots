@@ -21,6 +21,7 @@ dependencies {
     implementation 'com.diogonunes:JColor:5.2.0'
     implementation 'dnsjava:dnsjava:3.4.3'
     implementation 'org.slf4j:slf4j-nop:1.7.32'
+    implementation 'org.jline:jline:3.22.0'
 }
 
 jar {

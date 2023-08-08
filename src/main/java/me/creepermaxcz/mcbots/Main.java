@@ -7,6 +7,11 @@ import com.github.steveice10.mc.auth.util.HTTP;
 import com.github.steveice10.mc.protocol.data.status.ServerStatusInfo;
 import com.github.steveice10.packetlib.ProxyInfo;
 import org.apache.commons.cli.*;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
@@ -390,12 +395,22 @@ public class Main {
             }, 1000L, 500L);
         }
 
+        Terminal terminal = TerminalBuilder.builder().build();
+        LineReader lineReader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .parser(new org.jline.reader.impl.DefaultParser())
+                .build();
 
-        Scanner scanner = new Scanner(System.in);
         prompt = "ALL";
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
 
+        while (true) {
+            String line;
+            try {
+                line = lineReader.readLine();
+            } catch (UserInterruptException e) {
+                System.exit(0);
+                break;
+            }
             if (line.isEmpty()) {
                 System.out.print(getPrompt() + "> ");
                 continue;
@@ -456,16 +471,12 @@ public class Main {
 
 
                 // List command
-                else if (commandName.equalsIgnoreCase("list") || commandName.equalsIgnoreCase("ls"))
-                {
+                else if (commandName.equalsIgnoreCase("list") || commandName.equalsIgnoreCase("ls")) {
                     Log.info("There are " + bots.size() + " bots connected:");
                     for (Bot bot : bots) {
                         Log.info(bot.getNickname(), bot.hasMainListener() ? "[MainListener]" : "");
                     }
-                }
-
-                else if (commandName.equalsIgnoreCase("leave") || commandName.equalsIgnoreCase("exit"))
-                {
+                } else if (commandName.equalsIgnoreCase("leave") || commandName.equalsIgnoreCase("exit")) {
                     int limit = -1;
                     if (split.length >= 2) {
                         try {
@@ -496,17 +507,12 @@ public class Main {
                             bot.disconnect();
                         }
                     }
-                }
-
-                else {
+                } else {
                     Log.warn("Invalid command");
                 }
-            }
-
-            else if (controlledBots.size() > 0) {
+            } else if (controlledBots.size() > 0) {
                 controlledBots.forEach(bot -> bot.sendChat(line));
-            }
-            else {
+            } else {
                 bots.forEach(bot -> bot.sendChat(line));
             }
 
