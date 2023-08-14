@@ -31,9 +31,9 @@ public class MainListener implements SessionListener {
             // Sometimes the message's body gets null.
             // For example, some commands like /say makes the message content as null.
             // However, the message exists as in getMessagePlain(), thus can retrieve message using the method.
-            if (message == null) {  // When this message was null.
-                Log.chat(Utils.getFullText((TextComponent) sender, clientboundPlayerChatPacket.getContent(), Main.coloredChat));
-            } else { // When message exists.
+            if (message == null) {
+                Log.chat(Utils.getFullText((TextComponent) sender, Component.text(clientboundPlayerChatPacket.getContent()), Main.coloredChat));
+            } else {
                 Log.chat(Utils.getFullText((TextComponent) sender, (TextComponent) message, Main.coloredChat));
             }
             chatPrintedOut = true;
