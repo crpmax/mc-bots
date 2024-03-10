@@ -5,8 +5,8 @@ plugins {
 group 'me.creepermaxcz.mc-bots'
 version '1.2.9'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 17
+targetCompatibility = 17
 
 repositories {
     mavenCentral()
@@ -16,20 +16,21 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.steveice10:mcprotocollib:1.20.2-1'
+    implementation 'com.github.steveice10:mcprotocollib:1.20.4-2-SNAPSHOT'
+    implementation 'net.kyori:adventure-text-serializer-gson:4.16.0'
     implementation 'commons-cli:commons-cli:1.5.0'
     implementation 'com.diogonunes:JColor:5.2.0'
     implementation 'dnsjava:dnsjava:3.4.3'
     implementation 'org.slf4j:slf4j-nop:1.7.32'
-    implementation 'org.jline:jline:3.22.0'
+    implementation 'org.jline:jline:3.25.0'
 }
 
 jar {
     manifest {
-        attributes 'Main-Class': 'me.creepermaxcz.mcbots.Main'
+        attributes 'Main-Class': 'com.shanebeestudios.mcbots.standalone.Main', 'Manifest-Version': this.version
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
     from {
-        configurations.runtimeClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.filter { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
