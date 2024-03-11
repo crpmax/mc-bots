@@ -2,45 +2,61 @@ package com.shanebeestudios.mcbots.listener;
 
 import com.github.steveice10.mc.protocol.data.UnexpectedEncryptionException;
 import com.github.steveice10.mc.protocol.data.game.ClientCommand;
+import com.github.steveice10.mc.protocol.data.game.level.notify.GameEvent;
+import com.github.steveice10.mc.protocol.data.game.level.notify.RespawnScreenValue;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerCombatKillPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.ClientboundGameEventPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket;
 import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
 import com.github.steveice10.packetlib.event.session.SessionAdapter;
 import com.github.steveice10.packetlib.packet.Packet;
-import com.shanebeestudios.mcbots.api.Loader;
+import com.shanebeestudios.mcbots.api.BotManager;
+import com.shanebeestudios.mcbots.api.util.Utils;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 import com.shanebeestudios.mcbots.bot.Bot;
-import com.shanebeestudios.mcbots.api.util.Logger;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @SuppressWarnings("CallToPrintStackTrace")
 public class ClientListener extends SessionAdapter {
 
     private final Bot bot;
     private final Session client;
-    private final Loader loader;
+    private final BotManager botManager;
     private final ArrayList<String> joinMessages;
-    private final int autoRespawnDelay;
+    private int autoRespawnDelay;
 
     public ClientListener(Bot bot) {
         this.bot = bot;
         this.client = bot.getClient();
-        this.loader = bot.getLoader();
-        this.joinMessages = this.loader.getInfoBase().getJoinMessages();
-        this.autoRespawnDelay = this.loader.getInfoBase().getAutoRespawnDelay();
+        this.botManager = bot.getBotManager();
+        this.joinMessages = this.botManager.getInfoBase().getJoinMessages();
+        this.autoRespawnDelay = this.botManager.getInfoBase().getAutoRespawnDelay();
     }
 
     @Override
     public void packetReceived(Session session, Packet packet) {
-        if (packet instanceof ClientboundLoginPacket) {
+        if (packet instanceof ClientboundGameEventPacket gameEventPacket) {
+            if (gameEventPacket.getNotification() == GameEvent.ENABLE_RESPAWN_SCREEN) {
+                RespawnScreenValue value = (RespawnScreenValue) gameEventPacket.getValue();
+                if (value == RespawnScreenValue.IMMEDIATE_RESPAWN) {
+                    this.autoRespawnDelay = 0;
+                } else {
+                    this.autoRespawnDelay = this.botManager.getInfoBase().getAutoRespawnDelay();
+                }
+            }
+        } else if (packet instanceof ClientboundLoginPacket loginPacket) {
+            if (!loginPacket.isEnableRespawnScreen()) {
+                this.autoRespawnDelay = 0;
+            }
             this.bot.setConnected(true);
             Logger.info(this.bot.getNickname() + " connected");
 
@@ -78,21 +94,16 @@ public class ClientListener extends SessionAdapter {
 
         // Do not write disconnect reason if disconnected by command
         if (!this.bot.isManualDisconnecting()) {
-            // Fix broken reason string by finding the content with regex
-            Pattern pattern = Pattern.compile("content=\"(.*?)\"");
-            Matcher matcher = pattern.matcher(String.valueOf(event.getReason()));
-
-            StringBuilder reason = new StringBuilder();
-            while (matcher.find()) {
-                reason.append(matcher.group(1));
+            Component reason = event.getReason();
+            if (reason != null) {
+                String reasonText = Utils.getFullText((TextComponent) reason, true);
+                Logger.info("Reason: " + reasonText);
             }
 
-            Logger.info(" -> " + reason);
-
-            if (event.getCause() != null) {
-                event.getCause().printStackTrace();
-
-                if (event.getCause() instanceof UnexpectedEncryptionException) {
+            Throwable cause = event.getCause();
+            if (cause != null) {
+                cause.printStackTrace();
+                if (cause instanceof UnexpectedEncryptionException) {
                     Logger.warn("Server is running in online (premium) mode. Please use the -o option to use online mode bot.");
                     System.exit(1);
                 }
@@ -100,8 +111,7 @@ public class ClientListener extends SessionAdapter {
             Logger.info();
         }
 
-        this.loader.removeBot(this.bot);
-
+        this.botManager.removeBot(this.bot);
         Thread.currentThread().interrupt();
     }
 

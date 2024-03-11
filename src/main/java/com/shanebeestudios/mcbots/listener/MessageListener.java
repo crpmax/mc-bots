@@ -10,7 +10,7 @@ import com.github.steveice10.packetlib.event.session.PacketErrorEvent;
 import com.github.steveice10.packetlib.event.session.PacketSendingEvent;
 import com.github.steveice10.packetlib.event.session.SessionListener;
 import com.github.steveice10.packetlib.packet.Packet;
-import com.shanebeestudios.mcbots.api.util.Logger;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 import com.shanebeestudios.mcbots.standalone.StandaloneInfo;
 import com.shanebeestudios.mcbots.bot.Bot;
 import com.shanebeestudios.mcbots.api.util.Utils;
@@ -23,7 +23,7 @@ public class MessageListener implements SessionListener {
     private final boolean coloredChat;
 
     public MessageListener(Bot bot) {
-        this.coloredChat = !(bot.getLoader().getInfoBase() instanceof StandaloneInfo standaloneInfo) || standaloneInfo.isColoredChat();
+        this.coloredChat = !(bot.getBotManager().getInfoBase() instanceof StandaloneInfo standaloneInfo) || standaloneInfo.isColoredChat();
         Logger.info("MessageListener registered for: " + bot.getNickname());
     }
 

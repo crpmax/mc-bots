@@ -2,11 +2,11 @@ package com.shanebeestudios.mcbots.bot;
 
 import com.github.steveice10.mc.auth.service.AuthenticationService;
 import com.github.steveice10.packetlib.ProxyInfo;
-import com.shanebeestudios.mcbots.standalone.StandaloneLoader;
+import com.shanebeestudios.mcbots.standalone.StandaloneBotManager;
 import com.shanebeestudios.mcbots.standalone.StandaloneInfo;
 import com.shanebeestudios.mcbots.api.generator.NickGenerator;
 import com.shanebeestudios.mcbots.api.generator.ProxyGenerator;
-import com.shanebeestudios.mcbots.api.util.Logger;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.Random;
 
 public class BotLoader {
 
-    private final StandaloneLoader standaloneLoader;
+    private final StandaloneBotManager standaloneLoader;
     private final StandaloneInfo standaloneInfo;
     private final int delayMin;
     private final int delayMax;
@@ -22,7 +22,7 @@ public class BotLoader {
     private int triedToConnect = 0;
     private int proxyIndex = 0;
 
-    public BotLoader(StandaloneLoader standaloneLoader) {
+    public BotLoader(StandaloneBotManager standaloneLoader) {
         this.standaloneLoader = standaloneLoader;
         this.standaloneInfo = standaloneLoader.getMainInfo();
         this.delayMin = this.standaloneInfo.getDelayMin();

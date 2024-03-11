@@ -1,7 +1,7 @@
 package com.shanebeestudios.mcbots.api.generator;
 
 import com.github.steveice10.packetlib.ProxyInfo;
-import com.shanebeestudios.mcbots.api.util.Logger;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;

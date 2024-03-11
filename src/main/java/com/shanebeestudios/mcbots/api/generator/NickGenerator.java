@@ -1,7 +1,8 @@
 package com.shanebeestudios.mcbots.api.generator;
 
-import com.shanebeestudios.mcbots.api.util.Logger;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.jline.utils.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,9 +37,14 @@ public class NickGenerator {
             if (nicksCount == 0) {
                 Logger.error("No valid nicknames loaded");
                 System.exit(1);
+            } else {
+                Logger.info("Loaded %s nicknames", this.linesSize);
             }
         } else {
-            if (useRealNicknames && this.lines == null) loadLines();
+            if (useRealNicknames && this.lines == null) {
+                loadLines();
+                Logger.info("Loaded %s nicknames", this.linesSize);
+            }
             this.real = useRealNicknames;
         }
         this.nickLength = DEFAULT_NICK_LENGTH - prefix.length();

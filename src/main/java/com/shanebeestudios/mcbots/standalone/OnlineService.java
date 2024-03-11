@@ -5,7 +5,7 @@ import com.github.steveice10.mc.auth.exception.request.RequestException;
 import com.github.steveice10.mc.auth.service.AuthenticationService;
 import com.github.steveice10.mc.auth.service.MsaAuthenticationService;
 import com.github.steveice10.mc.auth.util.HTTP;
-import com.shanebeestudios.mcbots.api.util.Logger;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 
 import java.net.MalformedURLException;
 import java.net.Proxy;

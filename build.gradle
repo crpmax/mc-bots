@@ -1,18 +1,27 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     id 'java'
+    id "io.github.goooler.shadow" version "8.1.7"
 }
 
-group 'me.creepermaxcz.mc-bots'
+group 'com.shanebeestudios'
 version '1.2.9'
 
-sourceCompatibility = 17
-targetCompatibility = 17
+compileJava   {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+    options.encoding = 'UTF-8'
+}
 
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
     maven { url 'https://repo.opencollab.dev/maven-snapshots/' }
     maven { url 'https://repo.opencollab.dev/maven-releases/' }
+
+    // Paper
+    maven { url 'https://repo.papermc.io/repository/maven-public/' }
 }
 
 dependencies {
@@ -23,14 +32,48 @@ dependencies {
     implementation 'dnsjava:dnsjava:3.4.3'
     implementation 'org.slf4j:slf4j-nop:1.7.32'
     implementation 'org.jline:jline:3.25.0'
+
+    // Paper
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+
+    // Command Api
+    implementation("dev.jorel:commandapi-bukkit-shade:9.3.0")
+}
+
+processResources {
+    filter ReplaceTokens, tokens: ["version": project.version]
 }
 
 jar {
     manifest {
-        attributes 'Main-Class': 'com.shanebeestudios.mcbots.standalone.Main', 'Manifest-Version': this.version
+        attributes 'Main-Class': 'com.shanebeestudios.mcbots.standalone.Main', 'Manifest-Version': project.version
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
     from {
         configurations.runtimeClasspath.filter { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+shadowJar {
+    dependsOn(jar)
+    archiveClassifier = null
+    relocate("dev.jorel.commandapi", "com.shanebeestudios.mcbots.api.commandapi")
+}
+
+build {
+    dependsOn(shadowJar)
+
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            options.compilerArgs.add("-Xlint:unchecked")
+            options.compilerArgs.add("-Xlint:deprecation")
+        }
+    }
+}
+
+// Run task to build jar to another spot
+tasks.register('server', Copy) {
+    from shadowJar
+    // Change this to wherever you want your jar to build
+    into '/Users/ShaneBee/Desktop/Server/Skript/1-20-4/plugins'
 }

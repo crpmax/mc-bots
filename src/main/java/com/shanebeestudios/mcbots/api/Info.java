@@ -5,11 +5,11 @@ import java.util.ArrayList;
 public abstract class Info {
 
     protected int autoRespawnDelay;
-    protected boolean minimal;
+    protected boolean minimal = false;
     protected boolean mostMinimal = false;
     protected boolean useRealNicknames;
-    protected String nickPath;
-    protected String nickPrefix;
+    protected String nickPath = null;
+    protected String nickPrefix = "";
     protected String address;
     protected int port;
     protected boolean hasGravity;

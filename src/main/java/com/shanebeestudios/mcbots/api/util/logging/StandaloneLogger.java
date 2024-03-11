@@ -1,48 +1,53 @@
-package com.shanebeestudios.mcbots.api.util;
+package com.shanebeestudios.mcbots.api.util.logging;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Logger {
+public class StandaloneLogger extends BaseLogger {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
-    public static void log(String prefix, String message) {
+    public void log(String prefix, String message) {
         System.out.println("\r[" + formatter.format(new Date()) + " " + prefix + "] " + message);
         //System.out.print(StandaloneLoader.getInstance().getPrompt() + "> ");
     }
 
-    public static void error(String error) {
+    public void error(String error) {
         log("ERROR", error);
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
-    public static void error(Exception e) {
+    public void error(Exception e) {
         log("ERROR", "");
         e.printStackTrace();
     }
 
-    public static void info(String... message) {
+    @Override
+    public void info(String format, Object... objects) {
+        log("INFO", String.format(format, objects));
+    }
+
+    public void info(String... message) {
         log("INFO", String.join(" ", message));
     }
 
-    public static void info() {
+    public void info() {
         log("INFO", "");
     }
 
-    public static void warn(String... warning) {
+    public void warn(String... warning) {
         log("WARN", String.join(" ", warning));
     }
 
-    public static void warn() {
+    public void warn() {
         log("WARN", "");
     }
 
-    public static void chat(String... chat) {
+    public void chat(String... chat) {
         log("CHAT", String.join(" ", chat));
     }
 
-    public static void critical(Exception e) {
+    public void critical(Exception e) {
         error(e);
         System.exit(1);
     }

@@ -4,6 +4,7 @@ import com.diogonunes.jcolor.Attribute;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 import static com.diogonunes.jcolor.Ansi.colorize;
 
+@SuppressWarnings("deprecation")
 public class Utils {
 
     private static JsonObject lang;
@@ -30,12 +32,11 @@ public class Utils {
             StringBuilder text = new StringBuilder();
             text.append(parseColor(message, colored));
             for (Component child : message.children()) {
-                if (child instanceof TextComponent) {
-                    text.append(getFullText((TextComponent) child, colored));
-                } else if (child instanceof TranslatableComponent) {
-                    text.append(translate((TranslatableComponent) child));
+                if (child instanceof TextComponent textComponent) {
+                    text.append(getFullText(textComponent, colored));
+                } else if (child instanceof TranslatableComponent translatableComponent) {
+                    text.append(translate(translatableComponent));
                 }
-
             }
             return text.toString();
         } else {

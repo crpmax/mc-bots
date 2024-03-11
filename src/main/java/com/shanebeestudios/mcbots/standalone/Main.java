@@ -37,7 +37,7 @@ public class Main {
         options.addOption("ar", "auto-respawn", true, "Set autorespawn delay (-1 to disable)");
 
         StandaloneInfo standaloneInfo = new StandaloneInfo(options, args);
-        new StandaloneLoader(standaloneInfo);
+        new StandaloneBotManager(standaloneInfo);
     }
 
 }

@@ -2,27 +2,25 @@ package com.shanebeestudios.mcbots.standalone;
 
 import com.github.steveice10.mc.auth.service.AuthenticationService;
 import com.github.steveice10.mc.protocol.data.status.ServerStatusInfo;
+import com.shanebeestudios.mcbots.api.BotManager;
 import com.shanebeestudios.mcbots.api.ServerInfo;
-import com.shanebeestudios.mcbots.api.Loader;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 import com.shanebeestudios.mcbots.bot.Bot;
 import com.shanebeestudios.mcbots.bot.BotLoader;
-import com.shanebeestudios.mcbots.api.util.Logger;
 
 import java.net.InetSocketAddress;
 import java.util.HashSet;
 
-public class StandaloneLoader extends Loader {
+public class StandaloneBotManager extends BotManager {
 
     private final StandaloneInfo standaloneInfo;
     private final HashSet<Bot> controlledBots = new HashSet<>();
-
-
     private final AuthenticationService authenticationService;
     private final BotLoader botLoader;
 
     private boolean isMainListenerMissing = true;
 
-    public StandaloneLoader(StandaloneInfo standaloneInfo) {
+    public StandaloneBotManager(StandaloneInfo standaloneInfo) {
         super(standaloneInfo);
         this.standaloneInfo = standaloneInfo;
 
@@ -76,8 +74,9 @@ public class StandaloneLoader extends Loader {
         this.bots.get(0).registerMainListener();
     }
 
+    @Override
     public void removeBot(Bot bot) {
-        this.bots.remove(bot);
+        super.removeBot(bot);
         controlledBots.remove(bot);
         if (bot.hasMainListener()) {
             Logger.info("Bot with MainListener removed");
@@ -107,17 +106,6 @@ public class StandaloneLoader extends Loader {
         } else {
             return count + " BOTS";
         }
-    }
-
-    public Bot findBotByName(String text) {
-        for (Bot bot : this.getBots()) {
-            // Starts with and ignore case
-            // https://stackoverflow.com/a/38947571/11787611
-            if (bot.getNickname().regionMatches(true, 0, text, 0, text.length())) {
-                return bot;
-            }
-        }
-        return null;
     }
 
     public StandaloneInfo getMainInfo() {

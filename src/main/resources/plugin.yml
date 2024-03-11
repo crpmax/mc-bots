@@ -1,0 +1,6 @@
+main: com.shanebeestudios.mcbots.plugin.McBotPlugin
+name: "McBots"
+version: @version@
+api-version: 1.13
+loadbefore:
+  - Skript

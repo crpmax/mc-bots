@@ -1,7 +1,7 @@
 package com.shanebeestudios.mcbots.standalone;
 
 import com.shanebeestudios.mcbots.bot.Bot;
-import com.shanebeestudios.mcbots.api.util.Logger;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 public class ConsoleReader {
 
-    private final StandaloneLoader standaloneLoader;
+    private final StandaloneBotManager standaloneLoader;
 
-    public ConsoleReader(StandaloneLoader standaloneLoader) {
+    public ConsoleReader(StandaloneBotManager standaloneLoader) {
         this.standaloneLoader = standaloneLoader;
     }
 

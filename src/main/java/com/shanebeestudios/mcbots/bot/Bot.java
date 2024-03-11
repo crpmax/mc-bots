@@ -11,11 +11,10 @@ import com.github.steveice10.packetlib.ProxyInfo;
 import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.packet.Packet;
 import com.github.steveice10.packetlib.tcp.TcpClientSession;
-import com.shanebeestudios.mcbots.api.Loader;
-import com.shanebeestudios.mcbots.api.util.Logger;
+import com.shanebeestudios.mcbots.api.BotManager;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
 import com.shanebeestudios.mcbots.listener.ClientListener;
 import com.shanebeestudios.mcbots.listener.MessageListener;
-import com.shanebeestudios.mcbots.standalone.StandaloneLoader;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
@@ -25,7 +24,7 @@ import java.util.Collections;
 public class Bot {
 
     private final MinecraftProtocol protocol;
-    private final Loader loader;
+    private final BotManager botManager;
     private final String nickname;
     private final Session client;
     private boolean hasMainListener;
@@ -33,8 +32,8 @@ public class Bot {
     private boolean connected;
     private boolean manualDisconnecting = false;
 
-    public Bot(StandaloneLoader loader, String nickname, InetSocketAddress address, ProxyInfo proxy) {
-        this.loader = loader;
+    public Bot(BotManager botManager, String nickname, InetSocketAddress address, ProxyInfo proxy) {
+        this.botManager = botManager;
         this.nickname = nickname;
 
         Logger.info("Creating bot", nickname);
@@ -42,8 +41,8 @@ public class Bot {
         this.client = new TcpClientSession(address.getHostString(), address.getPort(), this.protocol, proxy);
     }
 
-    public Bot(StandaloneLoader loader, AuthenticationService authService, InetSocketAddress address, ProxyInfo proxy) {
-        this.loader = loader;
+    public Bot(BotManager botManager, AuthenticationService authService, InetSocketAddress address, ProxyInfo proxy) {
+        this.botManager = botManager;
         this.nickname = authService.getUsername();
 
         Logger.info("Creating bot", nickname);
@@ -60,15 +59,15 @@ public class Bot {
      */
     public void connect() {
         new Thread(() -> {
-            if (!this.loader.getInfoBase().isMinimal()) {
+            if (!this.botManager.getInfoBase().isMinimal()) {
                 this.client.addListener(new ClientListener(this));
             }
             this.client.connect();
-        }).start();;
+        }).start();
     }
 
-    public Loader getLoader() {
-        return this.loader;
+    public BotManager getBotManager() {
+        return this.botManager;
     }
 
     public Session getClient() {
@@ -102,10 +101,7 @@ public class Bot {
             // Send command
             packet = new ServerboundChatCommandPacket(text.substring(1), timeStamp, 0L, Collections.emptyList(), 0, bitSet);
         } else {
-            // Send chat message
-            // From 1.19.1 or 1.19, the ServerboundChatPacket needs timestamp, salt and signed signature to generate packet.
-            // tmpSignature will provide an empty byte array that can pretend it as signature.
-            // salt is set 0 since this is offline server and nobody will check it.
+            // Send chat
             packet = new ServerboundChatPacket(text, timeStamp, 0L, null, 0, bitSet);
         }
         this.client.send(packet);
@@ -117,7 +113,7 @@ public class Bot {
 
     public void registerMainListener() {
         this.hasMainListener = true;
-        if (this.loader.getInfoBase().isMinimal()) return;
+        if (this.botManager.getInfoBase().isMinimal()) return;
         this.client.addListener(new MessageListener(this));
     }
 
