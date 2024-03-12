@@ -1,4 +1,4 @@
-package me.creepermaxcz.mcbots;
+package com.shanebeestudios.mcbots.api;
 
 
 import com.github.steveice10.mc.protocol.MinecraftConstants;
@@ -21,19 +21,18 @@ public class ServerInfo {
     private boolean done;
 
     public ServerInfo(InetSocketAddress address) {
-
         MinecraftProtocol protocol = new MinecraftProtocol();
-        client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, null);
+        this.client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, null);
 
-        client.setFlag(MinecraftConstants.SERVER_INFO_HANDLER_KEY, (ServerInfoHandler) (session, info) -> {
+        this.client.setFlag(MinecraftConstants.SERVER_INFO_HANDLER_KEY, (ServerInfoHandler) (session, info) -> {
             this.serverStatusInfo = info;
         });
 
-        client.setFlag(MinecraftConstants.SERVER_PING_TIME_HANDLER_KEY, (ServerPingTimeHandler) (session, pingTime) -> {
+        this.client.setFlag(MinecraftConstants.SERVER_PING_TIME_HANDLER_KEY, (ServerPingTimeHandler) (session, pingTime) -> {
             this.ping = pingTime;
         });
 
-        client.addListener(new SessionAdapter() {
+        this.client.addListener(new SessionAdapter() {
             @Override
             public void disconnected(DisconnectedEvent event) {
                 done = true;
@@ -41,12 +40,11 @@ public class ServerInfo {
         });
     }
 
-    public void requestInfo()
-    {
-        client.connect();
+    public void requestInfo() {
+        this.client.connect();
 
         //wait to disconnect
-        while (!done) {
+        while (!this.done) {
             try {
                 Thread.sleep(5);
             } catch (InterruptedException e) {
@@ -55,12 +53,11 @@ public class ServerInfo {
         }
     }
 
-    public ServerStatusInfo getStatusInfo()
-    {
-        return serverStatusInfo;
+    public ServerStatusInfo getStatusInfo() {
+        return this.serverStatusInfo;
     }
 
     public long getPing() {
-        return ping;
+        return this.ping;
     }
 }
