@@ -1,8 +1,9 @@
 package com.shanebeestudios.mcbots.plugin.command;
 
-import com.shanebeestudios.mcbots.bot.Bot;
+import com.shanebeestudios.mcbots.api.util.logging.PluginLogger;
+import com.shanebeestudios.mcbots.api.bot.Bot;
 import com.shanebeestudios.mcbots.plugin.McBotPlugin;
-import com.shanebeestudios.mcbots.plugin.PluginBotManager;
+import com.shanebeestudios.mcbots.plugin.bot.PluginBotManager;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
@@ -30,14 +31,19 @@ public class Command {
 
     @SuppressWarnings("unchecked")
     public void registerCommand() {
-        CommandTree command = new CommandTree("mcbot")
+        CommandTree command = new CommandTree("mcbots")
             // Create a bot
             .then(new LiteralArgument("create")
                 .then(new LiteralArgument("named")
                     .then(new StringArgument("name")
                         .executes((sender, args) -> {
                             String name = (String) args.get("name");
-                            this.botManager.createBot(name);
+                            Bot bot = this.botManager.createBot(name);
+                            if (bot != null) {
+                                PluginLogger.logToSender(sender, "Created new bot '&b" + bot.getNickname() + "&7'");
+                            } else {
+                                PluginLogger.logToSender(sender, "&cFailed to create bot '&b" + name + "&7'");
+                            }
                         })))
                 .then(new LiteralArgument("random")
                     .then(new IntegerArgument("amount")
@@ -49,7 +55,12 @@ public class Command {
                                 long delay = (int) args.getOrDefault("delay-ticks", 20);
                                 for (int i = 0; i < amount; i++) {
                                     this.scheduler.runTaskLater(this.plugin, () -> {
-                                        this.botManager.createBot(null);
+                                        Bot bot = this.botManager.createBot(null);
+                                        if (bot != null) {
+                                            PluginLogger.logToSender(sender, "Created new bot '&b" + bot.getNickname() + "&7'");
+                                        } else {
+                                            PluginLogger.logToSender(sender, "&cFailed to create random bot!");
+                                        }
                                     }, delay * i);
                                 }
                             })))))
@@ -64,6 +75,7 @@ public class Command {
                             Bot bot = this.botManager.findBotByName(player.getName());
                             if (bot != null) {
                                 this.botManager.disconnectBot(bot);
+                                PluginLogger.logToSender(sender, "Removed bot &7'" + bot.getNickname() + "&7'");
                             }
                         });
                     })))
@@ -79,9 +91,7 @@ public class Command {
                             assert players != null;
                             players.forEach(player -> {
                                 Bot bot = this.botManager.findBotByName(player.getName());
-                                if (bot != null) {
-                                    bot.sendChat(message);
-                                }
+                                if (bot != null) bot.sendChat(message);
                             });
                         }))));
 

@@ -2,19 +2,17 @@ package com.shanebeestudios.mcbots.api.generator;
 
 import com.shanebeestudios.mcbots.api.util.logging.Logger;
 import org.jetbrains.annotations.Nullable;
-import org.jline.utils.Log;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class NickGenerator {
@@ -42,7 +40,7 @@ public class NickGenerator {
             }
         } else {
             if (useRealNicknames && this.lines == null) {
-                loadLines();
+                loadDefaultFile();
                 Logger.info("Loaded %s nicknames", this.linesSize);
             }
             this.real = useRealNicknames;
@@ -54,42 +52,33 @@ public class NickGenerator {
     private int loadFromFile(String filePath) {
         this.lines = new ArrayList<>();
         try {
-            Scanner scanner = new Scanner(new File(filePath));
-            while (scanner.hasNextLine()) {
-                try {
-                    String line = scanner.nextLine().trim();
-
-                    //add only valid nicknames
-                    if (line.matches("^[a-zA-Z0-9_]{3,16}$")) {
-                        this.lines.add(line);
-                    }
-                } catch (Exception ignored) {
-                }
-            }
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            Logger.error("Invalid nicknames list file path");
-            System.exit(1);
+            this.lines = getListFromReader(new FileReader(filePath));
+        } catch (FileNotFoundException ignore) {
+            Logger.error("Invalid nicknames list file path, loading default file!");
+            loadDefaultFile();
         }
 
         this.linesSize = this.lines.size();
-        Logger.info("Loaded " + this.linesSize + " valid nicknames");
         this.real = true;
-
         return this.linesSize;
     }
 
-    private void loadLines() {
-        try (InputStream resource = getClass().getResourceAsStream("/files/nicks.txt")) {
+    private void loadDefaultFile() {
+        try (InputStream resource = getClass().getResourceAsStream("/nicks.txt")) {
             assert resource != null;
-            lines = new BufferedReader(
-                new InputStreamReader(resource, StandardCharsets.UTF_8)).lines().collect(Collectors.toList()
-            );
-            linesSize = lines.size();
+            this.lines = getListFromReader(new InputStreamReader(resource, StandardCharsets.UTF_8));
+            this.linesSize = this.lines.size();
         } catch (Exception e) {
             Logger.error(e);
             System.exit(1);
         }
+    }
+
+    private List<String> getListFromReader(Reader reader) {
+        return new BufferedReader(reader)
+            .lines()
+            .filter(line -> line.matches("^[a-zA-Z0-9_]{3," + DEFAULT_NICK_LENGTH + "}$"))
+            .toList();
     }
 
     private String generateRandom(int len) {

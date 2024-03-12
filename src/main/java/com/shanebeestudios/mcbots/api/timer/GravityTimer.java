@@ -1,6 +1,6 @@
 package com.shanebeestudios.mcbots.api.timer;
 
-import com.shanebeestudios.mcbots.bot.Bot;
+import com.shanebeestudios.mcbots.api.bot.Bot;
 import com.shanebeestudios.mcbots.api.BotManager;
 
 import java.util.Timer;

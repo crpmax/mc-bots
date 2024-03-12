@@ -3,6 +3,7 @@ package com.shanebeestudios.mcbots.api.util.logging;
 import com.shanebeestudios.mcbots.plugin.McBotPlugin;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -25,6 +26,10 @@ public class PluginLogger extends BaseLogger {
             matcher = HEX_PATTERN.matcher(string);
         }
         return ChatColor.translateAlternateColorCodes('&', string);
+    }
+
+    public static void logToSender(CommandSender sender, String format, Object... objects) {
+        sender.sendMessage(getColString(PREFIX  + " &7" + String.format(format, objects)));
     }
 
     private final Logger bukkitLogger;

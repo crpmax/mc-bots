@@ -1,9 +1,9 @@
-package com.shanebeestudios.mcbots.bot;
+package com.shanebeestudios.mcbots.api.bot;
 
 import com.github.steveice10.mc.auth.service.AuthenticationService;
 import com.github.steveice10.packetlib.ProxyInfo;
-import com.shanebeestudios.mcbots.standalone.StandaloneBotManager;
-import com.shanebeestudios.mcbots.standalone.StandaloneInfo;
+import com.shanebeestudios.mcbots.standalone.bot.StandaloneSessionListener;
+import com.shanebeestudios.mcbots.standalone.bot.StandaloneBotManager;
 import com.shanebeestudios.mcbots.api.generator.NickGenerator;
 import com.shanebeestudios.mcbots.api.generator.ProxyGenerator;
 import com.shanebeestudios.mcbots.api.util.logging.Logger;
@@ -15,7 +15,6 @@ import java.util.Random;
 public class BotLoader {
 
     private final StandaloneBotManager standaloneLoader;
-    private final StandaloneInfo standaloneInfo;
     private final int delayMin;
     private final int delayMax;
     private final Random random;
@@ -24,22 +23,21 @@ public class BotLoader {
 
     public BotLoader(StandaloneBotManager standaloneLoader) {
         this.standaloneLoader = standaloneLoader;
-        this.standaloneInfo = standaloneLoader.getMainInfo();
-        this.delayMin = this.standaloneInfo.getDelayMin();
-        this.delayMax = this.standaloneInfo.getDelayMax();
+        this.delayMin = standaloneLoader.getDelayMin();
+        this.delayMax = standaloneLoader.getDelayMax();
         this.random = new Random();
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
     public void spin() {
-        int botCount = this.standaloneInfo.getBotCount();
-        boolean minimal = this.standaloneInfo.isMinimal();
-        boolean mostMinimal = this.standaloneInfo.isMostMinimal();
+        int botCount = this.standaloneLoader.getBotCount();
+        boolean minimal = this.standaloneLoader.isMinimal();
+        boolean mostMinimal = this.standaloneLoader.isMostMinimal();
         InetSocketAddress inetAddr = this.standaloneLoader.getInetAddr();
         NickGenerator nickGenerator = this.standaloneLoader.getNickGenerator();
         AuthenticationService authService = this.standaloneLoader.getAuthenticationService();
 
-        ProxyGenerator proxyGenerator = this.standaloneInfo.getProxyGenerator();
+        ProxyGenerator proxyGenerator = this.standaloneLoader.getProxyGenerator();
         int proxyCount = proxyGenerator != null ? proxyGenerator.getProxies().size() : 0;
         ArrayList<InetSocketAddress> proxies = proxyGenerator != null ? proxyGenerator.getProxies() : null;
 
@@ -70,6 +68,7 @@ public class BotLoader {
                     } else {
                         bot = new Bot(this.standaloneLoader, nickGenerator.nextNick(), inetAddr, proxyInfo);
                     }
+                    bot.setupSessionListener(new StandaloneSessionListener());
                     bot.connect();
 
                     if (!mostMinimal) this.standaloneLoader.getBots().add(bot);

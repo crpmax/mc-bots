@@ -13,9 +13,14 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.Nullable;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +30,7 @@ import static com.diogonunes.jcolor.Ansi.colorize;
 @SuppressWarnings("deprecation")
 public class Utils {
 
-    private static JsonObject lang;
+    private static JsonObject MINECRAFT_LANG;
 
     public static String getFullText(TextComponent message, boolean colored) {
         if (!message.children().isEmpty()) {
@@ -77,13 +82,10 @@ public class Utils {
             } else {
                 outString.append(message.content());
             }
-
             return outString.toString();
         } else {
-            if (sender == null)
-                return message.content();
-            else
-                return sender.content() + " : " + message.content();
+            if (sender == null) return message.content();
+            else return sender.content() + " : " + message.content();
         }
     }
 
@@ -125,11 +127,11 @@ public class Utils {
     }
 
     public static String translate(TranslatableComponent message) {
-        if (lang == null) {
+        if (MINECRAFT_LANG == null) {
             try {
                 InputStream resource = Utils.class.getResourceAsStream("/files/lang.json");
                 if (resource == null) return null;
-                lang = new JsonParser().parse(new InputStreamReader(resource)).getAsJsonObject();
+                MINECRAFT_LANG = new JsonParser().parse(new InputStreamReader(resource)).getAsJsonObject();
             } catch (Exception e) {
                 Logger.critical(e);
             }
@@ -138,7 +140,7 @@ public class Utils {
         String key = message.key();
         String base = key;
 
-        JsonElement value = lang.get(key);
+        JsonElement value = MINECRAFT_LANG.get(key);
         if (value != null) {
             base = value.getAsString();
         }
@@ -158,4 +160,23 @@ public class Utils {
             return base;
         }
     }
+
+    /**
+     * Get a UUID from a player name
+     *
+     * @param playerName Player name to fetch UUID from
+     * @return UUID from player name if available
+     */
+    @Nullable
+    public static String nameToUUID(String playerName) {
+        try {
+            URL url = new URL("https://api.mojang.com/users/profiles/minecraft/" + playerName);
+            JSONParser parser = new JSONParser();
+            JSONObject json = (JSONObject) parser.parse(new InputStreamReader(url.openStream()));
+            return (String) json.get("id");
+        } catch (ParseException | IOException ignore) {
+        }
+        return null;
+    }
+
 }

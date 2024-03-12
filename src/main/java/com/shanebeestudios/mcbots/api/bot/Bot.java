@@ -1,4 +1,4 @@
-package com.shanebeestudios.mcbots.bot;
+package com.shanebeestudios.mcbots.api.bot;
 
 import com.github.steveice10.mc.auth.service.AuthenticationService;
 import com.github.steveice10.mc.auth.service.SessionService;
@@ -12,9 +12,8 @@ import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.packet.Packet;
 import com.github.steveice10.packetlib.tcp.TcpClientSession;
 import com.shanebeestudios.mcbots.api.BotManager;
-import com.shanebeestudios.mcbots.api.util.logging.Logger;
-import com.shanebeestudios.mcbots.listener.ClientListener;
-import com.shanebeestudios.mcbots.listener.MessageListener;
+import com.shanebeestudios.mcbots.api.listener.BaseSessionListener;
+import com.shanebeestudios.mcbots.api.listener.MessageListener;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
@@ -31,12 +30,13 @@ public class Bot {
     private double lastX, lastY, lastZ = -1;
     private boolean connected;
     private boolean manualDisconnecting = false;
+    private BaseSessionListener sessionListener;
 
     public Bot(BotManager botManager, String nickname, InetSocketAddress address, ProxyInfo proxy) {
         this.botManager = botManager;
         this.nickname = nickname;
 
-        Logger.info("Creating bot", nickname);
+        botManager.logBotCreated(nickname);
         this.protocol = new MinecraftProtocol(nickname);
         this.client = new TcpClientSession(address.getHostString(), address.getPort(), this.protocol, proxy);
     }
@@ -45,7 +45,7 @@ public class Bot {
         this.botManager = botManager;
         this.nickname = authService.getUsername();
 
-        Logger.info("Creating bot", nickname);
+        botManager.logBotCreated(this.nickname);
         this.protocol = new MinecraftProtocol(authService.getSelectedProfile(), authService.getAccessToken());
 
         this.client = new TcpClientSession(address.getHostString(), address.getPort(), this.protocol, proxy);
@@ -54,13 +54,17 @@ public class Bot {
         this.client.setFlag(MinecraftConstants.SESSION_SERVICE_KEY, sessionService);
     }
 
+    public void setupSessionListener(BaseSessionListener listener) {
+        this.sessionListener = listener.init(this);
+    }
+
     /**
      * Connect the bot to the server
      */
     public void connect() {
         new Thread(() -> {
-            if (!this.botManager.getInfoBase().isMinimal()) {
-                this.client.addListener(new ClientListener(this));
+            if (!this.botManager.isMinimal() && this.sessionListener != null) {
+                this.client.addListener(this.sessionListener);
             }
             this.client.connect();
         }).start();
@@ -90,6 +94,10 @@ public class Bot {
         return this.manualDisconnecting;
     }
 
+    public boolean hasMainListener() {
+        return this.hasMainListener;
+    }
+
     public void sendChat(String text) {
         // timeStamp will provide when this message was sent by the user. If this value was not set or was set to 0,
         // The server console will print out that the message was "expired". To avoid this, set timeStamp as now.
@@ -107,13 +115,9 @@ public class Bot {
         this.client.send(packet);
     }
 
-    public boolean hasMainListener() {
-        return this.hasMainListener;
-    }
-
     public void registerMainListener() {
         this.hasMainListener = true;
-        if (this.botManager.getInfoBase().isMinimal()) return;
+        if (this.botManager.isMinimal()) return;
         this.client.addListener(new MessageListener(this));
     }
 

@@ -1,29 +1,24 @@
-package com.shanebeestudios.mcbots.listener;
+package com.shanebeestudios.mcbots.api.listener;
 
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundPlayerChatPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundSystemChatPacket;
 import com.github.steveice10.packetlib.Session;
-import com.github.steveice10.packetlib.event.session.ConnectedEvent;
-import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
-import com.github.steveice10.packetlib.event.session.DisconnectingEvent;
-import com.github.steveice10.packetlib.event.session.PacketErrorEvent;
-import com.github.steveice10.packetlib.event.session.PacketSendingEvent;
-import com.github.steveice10.packetlib.event.session.SessionListener;
+import com.github.steveice10.packetlib.event.session.SessionAdapter;
 import com.github.steveice10.packetlib.packet.Packet;
-import com.shanebeestudios.mcbots.api.util.logging.Logger;
-import com.shanebeestudios.mcbots.standalone.StandaloneInfo;
-import com.shanebeestudios.mcbots.bot.Bot;
 import com.shanebeestudios.mcbots.api.util.Utils;
+import com.shanebeestudios.mcbots.api.util.logging.Logger;
+import com.shanebeestudios.mcbots.api.bot.Bot;
+import com.shanebeestudios.mcbots.standalone.bot.StandaloneBotManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 
-public class MessageListener implements SessionListener {
+public class MessageListener extends SessionAdapter {
 
     private final boolean coloredChat;
 
     public MessageListener(Bot bot) {
-        this.coloredChat = !(bot.getBotManager().getInfoBase() instanceof StandaloneInfo standaloneInfo) || standaloneInfo.isColoredChat();
+        this.coloredChat = !(bot.getBotManager() instanceof StandaloneBotManager botManager) || botManager.isColoredChat();
         Logger.info("MessageListener registered for: " + bot.getNickname());
     }
 
@@ -62,30 +57,6 @@ public class MessageListener implements SessionListener {
         if (message instanceof TranslatableComponent translatableComponent) {
             Logger.chat("[T]", Utils.translate(translatableComponent));
         }
-    }
-
-    @Override
-    public void packetSending(PacketSendingEvent event) {
-    }
-
-    @Override
-    public void packetSent(Session session, Packet packet) {
-    }
-
-    @Override
-    public void packetError(PacketErrorEvent event) {
-    }
-
-    @Override
-    public void connected(ConnectedEvent event) {
-    }
-
-    @Override
-    public void disconnecting(DisconnectingEvent event) {
-    }
-
-    @Override
-    public void disconnected(DisconnectedEvent event) {
     }
 
 }

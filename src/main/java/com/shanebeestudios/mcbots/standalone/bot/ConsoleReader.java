@@ -1,6 +1,6 @@
-package com.shanebeestudios.mcbots.standalone;
+package com.shanebeestudios.mcbots.standalone.bot;
 
-import com.shanebeestudios.mcbots.bot.Bot;
+import com.shanebeestudios.mcbots.api.bot.Bot;
 import com.shanebeestudios.mcbots.api.util.logging.Logger;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;

@@ -1,6 +1,5 @@
-package com.shanebeestudios.mcbots.listener;
+package com.shanebeestudios.mcbots.plugin.bot;
 
-import com.github.steveice10.mc.protocol.data.UnexpectedEncryptionException;
 import com.github.steveice10.mc.protocol.data.game.ClientCommand;
 import com.github.steveice10.mc.protocol.data.game.level.notify.GameEvent;
 import com.github.steveice10.mc.protocol.data.game.level.notify.RespawnScreenValue;
@@ -12,45 +11,24 @@ import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundCl
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket;
 import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
-import com.github.steveice10.packetlib.event.session.SessionAdapter;
 import com.github.steveice10.packetlib.packet.Packet;
-import com.shanebeestudios.mcbots.api.BotManager;
-import com.shanebeestudios.mcbots.api.util.Utils;
-import com.shanebeestudios.mcbots.api.util.logging.Logger;
-import com.shanebeestudios.mcbots.bot.Bot;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
+import com.shanebeestudios.mcbots.api.listener.BaseSessionListener;
 
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-@SuppressWarnings("CallToPrintStackTrace")
-public class ClientListener extends SessionAdapter {
-
-    private final Bot bot;
-    private final Session client;
-    private final BotManager botManager;
-    private final ArrayList<String> joinMessages;
-    private int autoRespawnDelay;
-
-    public ClientListener(Bot bot) {
-        this.bot = bot;
-        this.client = bot.getClient();
-        this.botManager = bot.getBotManager();
-        this.joinMessages = this.botManager.getInfoBase().getJoinMessages();
-        this.autoRespawnDelay = this.botManager.getInfoBase().getAutoRespawnDelay();
-    }
+@SuppressWarnings("DuplicatedCode")
+public class PluginSessionListener extends BaseSessionListener {
 
     @Override
     public void packetReceived(Session session, Packet packet) {
         if (packet instanceof ClientboundGameEventPacket gameEventPacket) {
             if (gameEventPacket.getNotification() == GameEvent.ENABLE_RESPAWN_SCREEN) {
-                RespawnScreenValue value = (RespawnScreenValue) gameEventPacket.getValue();
-                if (value == RespawnScreenValue.IMMEDIATE_RESPAWN) {
+                RespawnScreenValue respawnScreenValue = (RespawnScreenValue) gameEventPacket.getValue();
+                if (respawnScreenValue == RespawnScreenValue.IMMEDIATE_RESPAWN) {
                     this.autoRespawnDelay = 0;
                 } else {
-                    this.autoRespawnDelay = this.botManager.getInfoBase().getAutoRespawnDelay();
+                    this.autoRespawnDelay = this.botManager.getAutoRespawnDelay();
                 }
             }
         } else if (packet instanceof ClientboundLoginPacket loginPacket) {
@@ -58,8 +36,8 @@ public class ClientListener extends SessionAdapter {
                 this.autoRespawnDelay = 0;
             }
             this.bot.setConnected(true);
-            Logger.info(this.bot.getNickname() + " connected");
 
+            // Might implement this later
             if (!this.joinMessages.isEmpty()) {
                 for (String msg : joinMessages) {
                     this.bot.sendChat(msg);
@@ -75,12 +53,11 @@ public class ClientListener extends SessionAdapter {
             this.client.send(new ServerboundAcceptTeleportationPacket(positionPacket.getTeleportId()));
         } else if (packet instanceof ClientboundPlayerCombatKillPacket) {
             if (this.autoRespawnDelay >= 0) {
-                Logger.info("Bot " + this.bot.getNickname() + " died. Respawning in " + this.autoRespawnDelay + " ms.");
                 new Timer().schedule(
                     new TimerTask() {
                         @Override
                         public void run() {
-                            ClientListener.this.client.send(new ServerboundClientCommandPacket(ClientCommand.RESPAWN));
+                            PluginSessionListener.this.client.send(new ServerboundClientCommandPacket(ClientCommand.RESPAWN));
                         }
                     }, this.autoRespawnDelay);
             }
@@ -90,27 +67,7 @@ public class ClientListener extends SessionAdapter {
     @Override
     public void disconnected(DisconnectedEvent event) {
         this.bot.setConnected(false);
-        Logger.info(this.bot.getNickname() + " disconnected");
-
-        // Do not write disconnect reason if disconnected by command
-        if (!this.bot.isManualDisconnecting()) {
-            Component reason = event.getReason();
-            if (reason != null) {
-                String reasonText = Utils.getFullText((TextComponent) reason, true);
-                Logger.info("Reason: " + reasonText);
-            }
-
-            Throwable cause = event.getCause();
-            if (cause != null) {
-                cause.printStackTrace();
-                if (cause instanceof UnexpectedEncryptionException) {
-                    Logger.warn("Server is running in online (premium) mode. Please use the -o option to use online mode bot.");
-                    System.exit(1);
-                }
-            }
-            Logger.info();
-        }
-
+        this.botManager.logBotDisconnected(this.bot.getNickname());
         this.botManager.removeBot(this.bot);
         Thread.currentThread().interrupt();
     }

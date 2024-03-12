@@ -1,5 +1,6 @@
 package com.shanebeestudios.mcbots.standalone;
 
+import com.shanebeestudios.mcbots.standalone.bot.StandaloneBotManager;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -36,8 +37,7 @@ public class Main {
 
         options.addOption("ar", "auto-respawn", true, "Set autorespawn delay (-1 to disable)");
 
-        StandaloneInfo standaloneInfo = new StandaloneInfo(options, args);
-        new StandaloneBotManager(standaloneInfo);
+        new StandaloneBotManager(options, args);
     }
 
 }

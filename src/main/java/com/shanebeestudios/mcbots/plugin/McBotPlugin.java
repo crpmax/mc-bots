@@ -1,6 +1,7 @@
 package com.shanebeestudios.mcbots.plugin;
 
 import com.shanebeestudios.mcbots.api.util.logging.Logger;
+import com.shanebeestudios.mcbots.plugin.bot.PluginBotManager;
 import com.shanebeestudios.mcbots.plugin.command.Command;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
@@ -9,11 +10,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@SuppressWarnings("unused")
 public class McBotPlugin extends JavaPlugin {
 
     private static McBotPlugin instance;
     private boolean commandApiCanLoad;
-    private PluginInfo pluginInfo;
     private PluginBotManager pluginBotManager;
 
     @Override
@@ -34,8 +35,8 @@ public class McBotPlugin extends JavaPlugin {
         Logger.setupBukkitLogging(this);
 
         PluginManager pluginManager = Bukkit.getPluginManager();
-        if (!commandApiCanLoad) {
-            Logger.error("CommandAPI could not be loaded"); // TODO better message
+        if (!this.commandApiCanLoad) {
+            Logger.error("CommandAPI could not be loaded, plugin disabling!");
             pluginManager.disablePlugin(this);
             return;
         }
@@ -46,6 +47,7 @@ public class McBotPlugin extends JavaPlugin {
             return;
         }
 
+        loadNicknameFile();
         setupBotLogic();
         setupCommand();
 
@@ -59,9 +61,12 @@ public class McBotPlugin extends JavaPlugin {
         CommandAPI.onDisable();
     }
 
+    private void loadNicknameFile() {
+        this.saveResource("nicks.txt", false);
+    }
+
     private void setupBotLogic() {
-        this.pluginInfo = new PluginInfo();
-        this.pluginBotManager = new PluginBotManager(this.pluginInfo);
+        this.pluginBotManager = new PluginBotManager();
     }
 
     private void setupCommand() {
@@ -72,10 +77,6 @@ public class McBotPlugin extends JavaPlugin {
     // Getters
     public static McBotPlugin getInstance() {
         return instance;
-    }
-
-    public PluginInfo getPluginInfo() {
-        return this.pluginInfo;
     }
 
     public PluginBotManager getPluginBotManager() {

@@ -1,4 +1,4 @@
-package com.shanebeestudios.mcbots.standalone;
+package com.shanebeestudios.mcbots.standalone.bot;
 
 import com.github.steveice10.mc.auth.exception.request.AuthPendingException;
 import com.github.steveice10.mc.auth.exception.request.RequestException;
@@ -6,6 +6,7 @@ import com.github.steveice10.mc.auth.service.AuthenticationService;
 import com.github.steveice10.mc.auth.service.MsaAuthenticationService;
 import com.github.steveice10.mc.auth.util.HTTP;
 import com.shanebeestudios.mcbots.api.util.logging.Logger;
+import com.shanebeestudios.mcbots.standalone.bot.StandaloneBotManager;
 
 import java.net.MalformedURLException;
 import java.net.Proxy;
@@ -16,15 +17,15 @@ import java.util.Map;
 public class OnlineService {
 
     private final String clientId = "8bef943e-5a63-429e-a93a-96391d2e32a9";
-    private final StandaloneInfo standaloneInfo;
+    private final StandaloneBotManager botManager;
 
-    public OnlineService(StandaloneInfo standaloneInfo) {
-        this.standaloneInfo = standaloneInfo;
+    public OnlineService(StandaloneBotManager botManager) {
+        this.botManager = botManager;
     }
 
     public AuthenticationService getOnlineAuthenticationService() {
         Logger.warn("Online mode enabled. The bot count will be set to 1.");
-        this.standaloneInfo.setBotCount(1);
+        this.botManager.setBotCount(1);
 
         // Create request parameters map
         Map<String, String> params = new HashMap<>();
