@@ -34,17 +34,20 @@ public class McBotPlugin extends JavaPlugin {
     @SuppressWarnings("deprecation")
     @Override
     public void onEnable() {
+        long start = System.currentTimeMillis();
         PluginManager pluginManager = Bukkit.getPluginManager();
+        Logger.setupBukkitLogging(this);
         if (Bukkit.getOnlineMode()) {
-            Logger.error("This plugin will only work in offline mode!");
+            Logger.error("***********************************************");
+            Logger.error("*                                             *");
+            Logger.error("* This plugin will only work in offline mode! *");
+            Logger.error("*                                             *");
+            Logger.error("***********************************************");
             pluginManager.disablePlugin(this);
             return;
         }
 
-        long start = System.currentTimeMillis();
         instance = this;
-        Logger.setupBukkitLogging(this);
-
 
         if (!this.commandApiCanLoad) {
             Logger.error("CommandAPI could not be loaded, plugin disabling!");
@@ -63,6 +66,7 @@ public class McBotPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (!Bukkit.getOnlineMode()) CommandAPI.onDisable();
+        instance = null;
     }
 
     private void loadNicknameFile() {
