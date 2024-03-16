@@ -1,18 +1,18 @@
-package com.shanebeestudios.mcbots.api.util.logging;
+package com.shanebeestudios.mcbots.api.util;
 
-import com.shanebeestudios.mcbots.plugin.McBotPlugin;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PluginLogger extends BaseLogger {
+@SuppressWarnings("unused")
+public class Logger {
 
     private static final String PREFIX = "&7[&bMc&3Bot&7]";
     private static final String PREFIX_ERROR = "&7[&bMc&3Bot &cERROR&7]";
+    private static final String PREFIX_WARN = "&7[&bMc&3Bot &eWARN&7]";
     private static final Pattern HEX_PATTERN = Pattern.compile("<#([A-Fa-f\\d]){6}>");
 
     @SuppressWarnings("deprecation") // Paper deprecation
@@ -29,64 +29,40 @@ public class PluginLogger extends BaseLogger {
     }
 
     public static void logToSender(CommandSender sender, String format, Object... objects) {
-        sender.sendMessage(getColString(PREFIX  + " &7" + String.format(format, objects)));
+        sender.sendMessage(getColString(PREFIX + " &7" + String.format(format, objects)));
     }
 
-    private final Logger bukkitLogger;
-
-    public PluginLogger(McBotPlugin plugin) {
-        this.bukkitLogger = plugin.getLogger();
-    }
-
-    @Override
-    public void log(String prefix, String message) {
+    public static void log(String prefix, String message) {
         String string = getColString(prefix + " " + message);
         Bukkit.getConsoleSender().sendMessage(string);
     }
 
-    @Override
-    public void error(String error) {
+    public static void error(String error) {
         log(PREFIX_ERROR, "&c" + error);
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
-    @Override
-    public void error(Exception e) {
+    public static void error(Exception e) {
         e.printStackTrace();
     }
 
-    @Override
-    public void info(String format, Object... objects) {
+    public static void info(String format, Object... objects) {
         log(PREFIX, "&7" + String.format(format, objects));
     }
 
-    @Override
-    public void info(String... message) {
+    public static void info(String... message) {
         log(PREFIX, "&7" + String.join(" ", message));
     }
 
-    @Override
-    public void info() {
+    public static void info() {
         log(PREFIX, "");
     }
 
-    @Override
-    public void warn(String... warning) {
-        this.bukkitLogger.warning(String.join(" ", warning));
+    public static void warn(String... warning) {
+        log(PREFIX_WARN, String.join(" ", warning));
     }
 
-    @Override
-    public void warn() {
-        this.bukkitLogger.warning("");
-    }
-
-    @Override
-    public void chat(String... chat) {
-        log("[CHAT]", String.join(" ", chat));
-    }
-
-    @Override
-    public void critical(Exception e) {
+    public static void critical(Exception e) {
         error(e);
     }
 

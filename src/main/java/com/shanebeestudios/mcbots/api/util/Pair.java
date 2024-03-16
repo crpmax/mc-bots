@@ -1,6 +1,6 @@
 package com.shanebeestudios.mcbots.api.util;
 
-public class Pair<F,S> {
+public class Pair<F, S> {
 
     private final F first;
     private final S second;

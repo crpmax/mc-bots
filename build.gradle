@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'com.shanebeestudios'
-version '1.2.9'
+version '1.0.0'
 
 compileJava   {
     sourceCompatibility = '17'
@@ -25,13 +25,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.steveice10:mcprotocollib:1.20.4-2-SNAPSHOT'
-    implementation 'net.kyori:adventure-text-serializer-gson:4.16.0'
-    implementation 'commons-cli:commons-cli:1.5.0'
-    implementation 'com.diogonunes:JColor:5.2.0'
-    implementation 'dnsjava:dnsjava:3.4.3'
-    implementation 'org.slf4j:slf4j-nop:1.7.32'
-    implementation 'org.jline:jline:3.25.0'
+    // McProtocol
+    implementation('com.github.steveice10:mcprotocollib:1.20.4-2-SNAPSHOT')
+    implementation('net.kyori:adventure-text-serializer-gson:4.16.0')
 
     // Paper
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
@@ -44,19 +40,9 @@ processResources {
     filter ReplaceTokens, tokens: ["version": project.version]
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'com.shanebeestudios.mcbots.standalone.Main', 'Manifest-Version': project.version
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
-    from {
-        configurations.runtimeClasspath.filter { it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
-
 shadowJar {
-    dependsOn(jar)
     archiveClassifier = null
+    minimize()
     relocate("dev.jorel.commandapi", "com.shanebeestudios.mcbots.api.commandapi")
 }
 

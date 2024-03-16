@@ -1,4 +1,4 @@
-package com.shanebeestudios.mcbots.plugin.bot;
+package com.shanebeestudios.mcbots.api.bot;
 
 import com.github.steveice10.mc.protocol.data.game.ClientCommand;
 import com.github.steveice10.mc.protocol.data.game.level.notify.GameEvent;
@@ -11,16 +11,30 @@ import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundCl
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket;
 import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
+import com.github.steveice10.packetlib.event.session.SessionAdapter;
 import com.github.steveice10.packetlib.packet.Packet;
-import com.shanebeestudios.mcbots.api.listener.BaseSessionListener;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 @SuppressWarnings("DuplicatedCode")
-public class PluginSessionListener extends BaseSessionListener {
+public class PacketListener extends SessionAdapter {
 
-    @Override
+    protected Bot bot;
+    protected Session client;
+    protected BotManager botManager;
+    protected ArrayList<String> joinMessages;
+    protected int autoRespawnDelay;
+
+    public PacketListener(Bot bot) {
+        this.bot = bot;
+        this.client = bot.getClient();
+        this.botManager = bot.getBotManager();
+        this.joinMessages = this.botManager.getJoinMessages();
+        this.autoRespawnDelay = this.botManager.getAutoRespawnDelay();
+    }
+
     public void packetReceived(Session session, Packet packet) {
         if (packet instanceof ClientboundGameEventPacket gameEventPacket) {
             if (gameEventPacket.getNotification() == GameEvent.ENABLE_RESPAWN_SCREEN) {
@@ -57,14 +71,13 @@ public class PluginSessionListener extends BaseSessionListener {
                     new TimerTask() {
                         @Override
                         public void run() {
-                            PluginSessionListener.this.client.send(new ServerboundClientCommandPacket(ClientCommand.RESPAWN));
+                            PacketListener.this.client.send(new ServerboundClientCommandPacket(ClientCommand.RESPAWN));
                         }
                     }, this.autoRespawnDelay);
             }
         }
     }
 
-    @Override
     public void disconnected(DisconnectedEvent event) {
         this.bot.setConnected(false);
         this.botManager.logBotDisconnected(this.bot.getNickname());

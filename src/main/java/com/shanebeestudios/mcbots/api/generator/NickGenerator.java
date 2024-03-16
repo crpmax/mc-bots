@@ -1,6 +1,6 @@
 package com.shanebeestudios.mcbots.api.generator;
 
-import com.shanebeestudios.mcbots.api.util.logging.Logger;
+import com.shanebeestudios.mcbots.api.util.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;

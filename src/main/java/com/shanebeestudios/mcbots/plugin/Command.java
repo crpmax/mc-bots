@@ -1,9 +1,8 @@
-package com.shanebeestudios.mcbots.plugin.command;
+package com.shanebeestudios.mcbots.plugin;
 
-import com.shanebeestudios.mcbots.api.util.logging.PluginLogger;
 import com.shanebeestudios.mcbots.api.bot.Bot;
-import com.shanebeestudios.mcbots.plugin.McBotPlugin;
-import com.shanebeestudios.mcbots.plugin.bot.PluginBotManager;
+import com.shanebeestudios.mcbots.api.bot.BotManager;
+import com.shanebeestudios.mcbots.api.util.Logger;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
@@ -19,7 +18,7 @@ import java.util.Collection;
 public class Command {
 
     private final McBotPlugin plugin;
-    private final PluginBotManager botManager;
+    private final BotManager botManager;
     private final BukkitScheduler scheduler;
 
     public Command(McBotPlugin plugin) {
@@ -40,9 +39,9 @@ public class Command {
                             String name = (String) args.get("name");
                             Bot bot = this.botManager.createBot(name);
                             if (bot != null) {
-                                PluginLogger.logToSender(sender, "Created new bot '&b" + bot.getNickname() + "&7'");
+                                Logger.logToSender(sender, "Created new bot '&b" + bot.getNickname() + "&7'");
                             } else {
-                                PluginLogger.logToSender(sender, "&cFailed to create bot '&b" + name + "&7'");
+                                Logger.logToSender(sender, "&cFailed to create bot '&b" + name + "&7'");
                             }
                         })))
                 .then(new LiteralArgument("random")
@@ -57,9 +56,9 @@ public class Command {
                                     this.scheduler.runTaskLater(this.plugin, () -> {
                                         Bot bot = this.botManager.createBot(null);
                                         if (bot != null) {
-                                            PluginLogger.logToSender(sender, "Created new bot '&b" + bot.getNickname() + "&7'");
+                                            Logger.logToSender(sender, "Created new bot '&b" + bot.getNickname() + "&7'");
                                         } else {
-                                            PluginLogger.logToSender(sender, "&cFailed to create random bot!");
+                                            Logger.logToSender(sender, "&cFailed to create random bot!");
                                         }
                                     }, delay * i);
                                 }
@@ -75,7 +74,7 @@ public class Command {
                             Bot bot = this.botManager.findBotByName(player.getName());
                             if (bot != null) {
                                 this.botManager.disconnectBot(bot);
-                                PluginLogger.logToSender(sender, "Removed bot &7'" + bot.getNickname() + "&7'");
+                                Logger.logToSender(sender, "Removed bot &7'" + bot.getNickname() + "&7'");
                             }
                         });
                     })))

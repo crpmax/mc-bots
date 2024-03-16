@@ -1,53 +1,50 @@
-package com.shanebeestudios.mcbots.api;
+package com.shanebeestudios.mcbots.api.bot;
 
 import com.shanebeestudios.mcbots.api.generator.NickGenerator;
 import com.shanebeestudios.mcbots.api.timer.GravityTimer;
-import com.shanebeestudios.mcbots.api.util.logging.Logger;
-import com.shanebeestudios.mcbots.api.bot.Bot;
+import com.shanebeestudios.mcbots.api.util.Logger;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 /**
- * Base bot manager
+ * Bot manager for server plugin
  */
-public abstract class BotManager {
+@SuppressWarnings("unused")
+public class BotManager {
 
-    protected int autoRespawnDelay;
-    protected boolean minimal = false;
-    protected boolean mostMinimal = false;
-    protected String nickPath = null;
-    protected String nickPrefix = "";
-    protected boolean hasGravity;
-    protected ArrayList<String> joinMessages = new ArrayList<>();
-    protected InetSocketAddress inetAddr;
-    protected final ArrayList<Bot> bots = new ArrayList<>();
-    protected NickGenerator nickGenerator;
-    protected final GravityTimer gravityTimer;
+    private final int autoRespawnDelay;
+    private final String nickPath = null;
+    private final String nickPrefix = "";
+    private final boolean hasGravity;
+    private final ArrayList<String> joinMessages = new ArrayList<>();
+    private final InetSocketAddress inetAddr;
+    private final ArrayList<Bot> bots = new ArrayList<>();
+    private final NickGenerator nickGenerator;
+    private final GravityTimer gravityTimer;
 
     public BotManager() {
+        this.autoRespawnDelay = 3000;
+        this.inetAddr = createInetAddress(getServerAddress(), Bukkit.getPort());
+        this.nickGenerator = new NickGenerator("plugins/McBots/nicks.txt", this.nickPrefix, true);
+        this.hasGravity = true;
         this.gravityTimer = new GravityTimer(this);
+        this.gravityTimer.startTimer();
     }
 
     // Methods
-    protected InetSocketAddress createInetAddress(String address, int port) {
+    private InetSocketAddress createInetAddress(String address, int port) {
         try {
             InetAddress inetAddress = InetAddress.getByName(address);
             return new InetSocketAddress(inetAddress.getHostAddress(), port);
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public boolean isMinimal() {
-        return this.minimal;
-    }
-
-    public boolean isMostMinimal() {
-        return this.mostMinimal;
     }
 
     public int getAutoRespawnDelay() {
@@ -74,6 +71,10 @@ public abstract class BotManager {
         return this.inetAddr;
     }
 
+    public GravityTimer getGravityTimer() {
+        return this.gravityTimer;
+    }
+
     /**
      * Get all loaded bots
      *
@@ -90,14 +91,6 @@ public abstract class BotManager {
      */
     public NickGenerator getNickGenerator() {
         return this.nickGenerator;
-    }
-
-    public void logBotCreated(String name) {
-        Logger.info("Bot '" + name + "' created");
-    }
-
-    public void logBotDisconnected(String name) {
-        Logger.info("Bot '" + name + "' disconnected");
     }
 
     /**
@@ -135,6 +128,40 @@ public abstract class BotManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Create a bot
+     *
+     * @param name Name of bot or null to create random named bot
+     *             Name must be between 1 and 16 characters
+     * @return Bot if was created, else null
+     */
+    @Nullable
+    public Bot createBot(@Nullable String name) {
+        if (name != null && name.length() > 16) return null;
+
+        String botname = name != null ? name : getNickGenerator().nextNick();
+        Bot bot = new Bot(this, botname, getInetAddr(), null);
+        this.bots.add(bot);
+        bot.connect();
+        return bot;
+    }
+
+    private String getServerAddress() {
+        try {
+            return Inet4Address.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void logBotCreated(String name) {
+        Logger.info("Bot '&b" + name + "&7' created");
+    }
+
+    public void logBotDisconnected(String name) {
+        Logger.info("Bot '&b" + name + "&7' disconnected");
     }
 
 }

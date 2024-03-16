@@ -1,8 +1,7 @@
 package com.shanebeestudios.mcbots.plugin;
 
-import com.shanebeestudios.mcbots.api.util.logging.Logger;
-import com.shanebeestudios.mcbots.plugin.bot.PluginBotManager;
-import com.shanebeestudios.mcbots.plugin.command.Command;
+import com.shanebeestudios.mcbots.api.bot.BotManager;
+import com.shanebeestudios.mcbots.api.util.Logger;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.exceptions.UnsupportedVersionException;
@@ -15,7 +14,7 @@ public class McBotPlugin extends JavaPlugin {
 
     private static McBotPlugin instance;
     private boolean commandApiCanLoad;
-    private PluginBotManager pluginBotManager;
+    private BotManager botManager;
 
     @Override
     public void onLoad() {
@@ -36,7 +35,6 @@ public class McBotPlugin extends JavaPlugin {
     public void onEnable() {
         long start = System.currentTimeMillis();
         PluginManager pluginManager = Bukkit.getPluginManager();
-        Logger.setupBukkitLogging(this);
         if (Bukkit.getOnlineMode()) {
             Logger.error("***********************************************");
             Logger.error("*                                             *");
@@ -74,7 +72,7 @@ public class McBotPlugin extends JavaPlugin {
     }
 
     private void setupBotLogic() {
-        this.pluginBotManager = new PluginBotManager();
+        this.botManager = new BotManager();
     }
 
     private void setupCommand() {
@@ -88,8 +86,8 @@ public class McBotPlugin extends JavaPlugin {
         return instance;
     }
 
-    public PluginBotManager getPluginBotManager() {
-        return this.pluginBotManager;
+    public BotManager getPluginBotManager() {
+        return this.botManager;
     }
 
 }
