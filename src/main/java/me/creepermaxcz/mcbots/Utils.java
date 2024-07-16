@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.TranslationArgument;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -121,38 +123,52 @@ public class Utils {
     }
 
     public static String translate(TranslatableComponent message) {
-        if (lang == null) {
-            try {
-                InputStream resource = Utils.class.getResourceAsStream("/files/lang.json");
-                lang = new JsonParser().parse(new InputStreamReader(resource)).getAsJsonObject();
-            } catch (Exception e) {
-                Log.crit(e);
-            }
-        }
-        //Log.info(message.toString());
-
-        String key = message.key();
-        String base = key;
-
-        JsonElement value = lang.get(key);
-        if (value != null) {
-            base = value.getAsString();
-        }
-
-        ArrayList<String> placeholders = new ArrayList<>();
-
-        if (message.args().size() > 0) {
-            for (Component component : message.args()) {
-                if (component instanceof TranslatableComponent) {
-                    placeholders.add(translate((TranslatableComponent) component));
-                } else if (component instanceof TextComponent) {
-                    placeholders.add(getFullText((TextComponent) component, false));
+        try {
+            if (lang == null) {
+                try {
+                    InputStream resource = Utils.class.getResourceAsStream("/files/lang.json");
+                    if (resource == null) {
+                        throw new Exception("Failed to load lang resource.");
+                    }
+                    lang = new JsonParser().parse(new InputStreamReader(resource)).getAsJsonObject();
+                } catch (Exception e) {
+                    Log.crit(e);
                 }
             }
-            //Log.info(Arrays.toString(placeholders.toArray()));
-            return String.format(base, placeholders.toArray());
-        } else {
-            return base;
+            //Log.info(message.toString());
+
+            String key = message.key();
+            String base = key;
+
+            JsonElement value = lang.get(key);
+            if (value != null) {
+                base = value.getAsString();
+            }
+
+            ArrayList<String> placeholders = new ArrayList<>();
+
+            if (message.arguments().size() > 0) {
+                for (TranslationArgument arg : message.arguments()) {
+                    Component component = arg.asComponent();
+                    if (component instanceof TranslatableComponent) {
+                        placeholders.add(translate((TranslatableComponent) component));
+                    } else if (arg instanceof TextComponent) {
+                        placeholders.add(getFullText((TextComponent) component, false));
+                    }
+                }
+                //Log.info(Arrays.toString(placeholders.toArray()));
+                try {
+                    return String.format(base, placeholders.toArray());
+                } catch (Exception e) {
+                    Log.error("Error formatting '"+base+"' with placeholders " + Arrays.toString(placeholders.toArray()));
+                }
+            } else {
+                return base;
+            }
+        } catch (Exception e) {
+            Log.error(e);
         }
+
+        return "";
     }
 }

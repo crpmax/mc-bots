@@ -1,7 +1,7 @@
 # Minecraft bot stress tester
 🤖 A simple open source app written in Java used for stress testing Minecraft servers with bots (fake players).  
 💥 It can be also used to test plugins or minigames.  
-✔️ The MC version of the bots is 1.20 (supports 1.20.x).  
+✔️ The MC version of the bots is 1.20.4  
 For older MC versions please look in the [releases](https://github.com/crpmax/mc-bots/releases " releases").
 
 ## 🆒 Features
@@ -15,13 +15,13 @@ For older MC versions please look in the [releases](https://github.com/crpmax/mc
 - ✅ Control all or selected bots
 
 ## 📖 Usage
-Minimal Java version: 8  
+Minimal Java version: 17  
 Use of pre-compiled jar from [releases](https://github.com/crpmax/mc-bots/releases " releases"):  
 `java -jar mc-bots.jar -s <server address> [arguments]`  
 When running, you can write a chat message to the terminal to send it by all bots.
 
 ## 🧪 Example
-`java -jar mc-bots-1.2.6.jar -s 192.168.0.189:25565 -p BOT_ -d 4000 5000 -c 30 -r`  
+`java -jar mc-bots-1.2.10.jar -s 192.168.0.189:25565 -p BOT_ -d 4000 5000 -c 30 -r`  
 This will connect 30 bots to server at 192.168.0.189:25565 with delay 4000-5000 ms and will use real-looking nicknames prefixed with BOT_
 
 <img src="https://imgur.com/XWcckas.png" title="Connected bots" width="350px"/>
