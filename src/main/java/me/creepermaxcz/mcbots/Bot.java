@@ -2,24 +2,24 @@ package me.creepermaxcz.mcbots;
 
 import com.github.steveice10.mc.auth.service.AuthenticationService;
 import com.github.steveice10.mc.auth.service.SessionService;
-import com.github.steveice10.mc.protocol.MinecraftConstants;
-import com.github.steveice10.mc.protocol.MinecraftProtocol;
-import com.github.steveice10.mc.protocol.data.UnexpectedEncryptionException;
-import com.github.steveice10.mc.protocol.data.game.ClientCommand;
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerCombatKillPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundChatPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket;
-import com.github.steveice10.mc.protocol.packet.ingame.serverbound.player.*;
-import com.github.steveice10.packetlib.ProxyInfo;
-import com.github.steveice10.packetlib.Session;
-import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
-import com.github.steveice10.packetlib.event.session.SessionAdapter;
-import com.github.steveice10.packetlib.packet.Packet;
-import com.github.steveice10.packetlib.tcp.TcpClientSession;
+import org.geysermc.mcprotocollib.network.ProxyInfo;
+import org.geysermc.mcprotocollib.network.Session;
+import org.geysermc.mcprotocollib.network.event.session.DisconnectedEvent;
+import org.geysermc.mcprotocollib.network.event.session.SessionAdapter;
+import org.geysermc.mcprotocollib.network.packet.Packet;
+import org.geysermc.mcprotocollib.network.tcp.TcpClientSession;
+import org.geysermc.mcprotocollib.protocol.MinecraftConstants;
+import org.geysermc.mcprotocollib.protocol.MinecraftProtocol;
+import org.geysermc.mcprotocollib.protocol.data.UnexpectedEncryptionException;
+import org.geysermc.mcprotocollib.protocol.data.game.ClientCommand;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundLoginPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerCombatKillPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket;
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.*;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
@@ -155,19 +155,10 @@ public class Bot extends Thread {
     }
 
     public void sendChat(String text) {
-        // timeStamp will provide when this message was sent by the user. If this value was not set or was set to 0,
-        // The server console will print out that the message was "expired". To avoid this, set timeStamp as now.
-        long timeStamp = Instant.now().toEpochMilli();
-
         // Send command
         if (text.startsWith("/")) {
             client.send(new ServerboundChatCommandPacket(
-                    text.substring(1),
-                    timeStamp,
-                    0L,
-                    Collections.emptyList(),
-                    0,
-                    new BitSet()
+                    text.substring(1)
             ));
         } else {
             // Send chat message

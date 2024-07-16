@@ -1,15 +1,16 @@
 package me.creepermaxcz.mcbots;
 
 
-import com.github.steveice10.mc.protocol.MinecraftConstants;
-import com.github.steveice10.mc.protocol.MinecraftProtocol;
-import com.github.steveice10.mc.protocol.data.status.ServerStatusInfo;
-import com.github.steveice10.mc.protocol.data.status.handler.ServerInfoHandler;
-import com.github.steveice10.mc.protocol.data.status.handler.ServerPingTimeHandler;
-import com.github.steveice10.packetlib.Session;
-import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
-import com.github.steveice10.packetlib.event.session.SessionAdapter;
-import com.github.steveice10.packetlib.tcp.TcpClientSession;
+import org.geysermc.mcprotocollib.network.Session;
+import org.geysermc.mcprotocollib.network.event.session.DisconnectedEvent;
+import org.geysermc.mcprotocollib.network.event.session.SessionAdapter;
+import org.geysermc.mcprotocollib.network.tcp.TcpClientSession;
+import org.geysermc.mcprotocollib.protocol.MinecraftConstants;
+import org.geysermc.mcprotocollib.protocol.MinecraftProtocol;
+import org.geysermc.mcprotocollib.protocol.data.status.ServerStatusInfo;
+import org.geysermc.mcprotocollib.protocol.data.status.handler.ServerInfoHandler;
+import org.geysermc.mcprotocollib.protocol.data.status.handler.ServerPingTimeHandler;
+
 
 import java.net.InetSocketAddress;
 
