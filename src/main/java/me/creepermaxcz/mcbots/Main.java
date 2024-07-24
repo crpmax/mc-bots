@@ -105,7 +105,7 @@ public class Main {
             try {
                 proxyType = ProxyInfo.Type.valueOf(typeStr);
             } catch (IllegalArgumentException e) {
-                Log.error("Inavlid proxy type, use SOCKS4 or SOCKS5.");
+                Log.error("Invalid proxy type, use SOCKS4 or SOCKS5.");
                 System.exit(1);
             }
 
