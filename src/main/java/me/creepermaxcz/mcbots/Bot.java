@@ -99,6 +99,9 @@ public class Bot extends Thread {
 
                         client.send(new ServerboundAcceptTeleportationPacket(p.getTeleportId()));
                     }
+                    else if (packet instanceof ClientboundPingPacket) {
+                        client.send(new ServerboundPongPacket(((ClientboundPingPacket) packet).getId()));
+                    }
                     else if (packet instanceof ClientboundPlayerCombatKillPacket){
                         if (Main.autoRespawnDelay >= 0) {
                             Log.info("Bot " + nickname + " died. Respawning in " + Main.autoRespawnDelay + " ms.");
