@@ -1,7 +1,7 @@
 package me.creepermaxcz.mcbots;
 
-import com.github.steveice10.mc.auth.service.AuthenticationService;
-import com.github.steveice10.mc.auth.service.SessionService;
+import org.geysermc.mcprotocollib.auth.GameProfile;
+import org.geysermc.mcprotocollib.auth.SessionService;
 import org.geysermc.mcprotocollib.network.ProxyInfo;
 import org.geysermc.mcprotocollib.network.Session;
 import org.geysermc.mcprotocollib.network.event.session.DisconnectedEvent;
@@ -53,13 +53,12 @@ public class Bot extends Thread {
         client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, proxy);
     }
 
-    public Bot(AuthenticationService authService, InetSocketAddress address, ProxyInfo proxy) {
-        this.nickname = authService.getUsername();
+    public Bot(MinecraftProtocol protocol, InetSocketAddress address, ProxyInfo proxy) {
+        this.nickname = protocol.getProfile().getName();
         this.address = address;
         this.proxy = proxy;
 
         Log.info("Creating bot", nickname);
-        protocol = new MinecraftProtocol(authService.getSelectedProfile(), authService.getAccessToken());
 
         client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, proxy);
 

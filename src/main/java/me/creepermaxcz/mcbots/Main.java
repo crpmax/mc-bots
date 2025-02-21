@@ -1,10 +1,12 @@
 package me.creepermaxcz.mcbots;
 
-import com.github.steveice10.mc.auth.exception.request.AuthPendingException;
-import com.github.steveice10.mc.auth.service.AuthenticationService;
-import com.github.steveice10.mc.auth.service.MsaAuthenticationService;
-import com.github.steveice10.mc.auth.util.HTTP;
+import net.lenni0451.commons.httpclient.HttpClient;
+import net.raphimc.minecraftauth.MinecraftAuth;
+import net.raphimc.minecraftauth.step.java.session.StepFullJavaSession;
+import net.raphimc.minecraftauth.step.msa.StepMsaDeviceCode;
+import org.geysermc.mcprotocollib.auth.GameProfile;
 import org.geysermc.mcprotocollib.network.ProxyInfo;
+import org.geysermc.mcprotocollib.protocol.MinecraftProtocol;
 import org.geysermc.mcprotocollib.protocol.data.status.ServerStatusInfo;
 import org.apache.commons.cli.*;
 import org.jline.reader.LineReader;
@@ -269,55 +271,28 @@ public class Main {
             Log.warn("There was an error retrieving server status information. The server may be offline or running on a different version.");
         }
 
-        AuthenticationService authService = null;
+        MinecraftProtocol protocol;
         if (cmd.hasOption("o")) {
             Log.warn("Online mode enabled. The bot count will be set to 1.");
             botCount = 1;
 
-            // Create request parameters map
-            Map<String, String> params = new HashMap<>();
-            params.put("client_id", CLIENT_ID);
-            params.put("scope", "XboxLive.signin");
+            HttpClient httpClient = MinecraftAuth.createHttpClient();
+            StepFullJavaSession.FullJavaSession javaSession =
+                    MinecraftAuth.JAVA_DEVICE_CODE_LOGIN.getFromInput(
+                            httpClient, new StepMsaDeviceCode.MsaDeviceCodeCallback(
+                                    msaDeviceCode -> {
+                Log.info("Authorize your Microsoft account on " + msaDeviceCode.getDirectVerificationUri());
+                Log.info("Waiting for authorization.");
+            }));
 
-            // Send request to Microsoft OAuth api
-            // https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
-            URI endpointURI = URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode");
-            MsaAuthenticationService.MsCodeResponse response = HTTP.makeRequestForm(
-                    Proxy.NO_PROXY, endpointURI, params, MsaAuthenticationService.MsCodeResponse.class
-            );
-            try {
-                Log.info("Please go to " + response.verification_uri.toURL() + " to authenticate your account - Code: " + response.user_code);
-            } catch (MalformedURLException e) {
-                Log.error("Error while trying to get the url of the authentication page");
-            }
+            Log.info("Logged in with username: " + javaSession.getMcProfile().getName());
 
-            authService = new MsaAuthenticationService(CLIENT_ID, response.device_code);
-
-            // Wait for user to login on microsoft page
-            int retryMax = 20;
-            while (true) {
-                try {
-                    authService.login();
-                    break;
-                } catch (Exception e) {
-                    if (e instanceof AuthPendingException) {
-                        Log.info("Authentication is pending, waiting for user to authenticate...");
-                        try {
-                            Thread.sleep(5000);
-                        } catch (InterruptedException ignored) {
-                        }
-                        if (retryMax == 0)
-                            throw e;
-                        retryMax--;
-                    } else {
-                        throw e;
-                    }
-
-                }
-            }
+            GameProfile gameProfile = new GameProfile(javaSession.getMcProfile().getId(), javaSession.getMcProfile().getName());
+            protocol = new MinecraftProtocol(gameProfile, javaSession.getMcProfile().getMcToken().getAccessToken());
+        } else {
+            protocol = null;
         }
 
-        AuthenticationService finalAuthService = authService;
         new Thread(() -> {
             for (int i = 0; i < botCount; i++) {
                 try {
@@ -347,15 +322,15 @@ public class Main {
                     }
 
                     Bot bot = null;
-                    if (finalAuthService != null) {
+                    if (protocol != null) {
                         bot = new Bot(
-                                finalAuthService,
+                                protocol,
                                 inetAddr,
                                 proxyInfo
                         );
                     } else {
                         bot = new Bot(
-                                nickGen.nextNick(),
+                                new MinecraftProtocol(nickGen.nextNick()),
                                 inetAddr,
                                 proxyInfo
                         );
