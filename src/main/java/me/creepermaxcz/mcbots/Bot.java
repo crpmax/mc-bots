@@ -92,11 +92,11 @@ public class Bot extends Thread {
                     else if (packet instanceof ClientboundPlayerPositionPacket) {
                         ClientboundPlayerPositionPacket p = (ClientboundPlayerPositionPacket) packet;
 
-                        lastX = p.getX();
-                        lastY = p.getY();
-                        lastZ = p.getZ();
+                        lastX = p.getPosition().getX();
+                        lastY = p.getPosition().getY();
+                        lastZ = p.getPosition().getZ();
 
-                        client.send(new ServerboundAcceptTeleportationPacket(p.getTeleportId()));
+                        client.send(new ServerboundAcceptTeleportationPacket(p.getId()));
                     }
                     else if (packet instanceof ClientboundPlayerCombatKillPacket){
                         if (Main.autoRespawnDelay >= 0) {
@@ -207,7 +207,7 @@ public class Bot extends Thread {
 
     public void moveTo(double x, double y, double z)
     {
-        client.send(new ServerboundMovePlayerPosPacket(true, x, y, z));
+        client.send(new ServerboundMovePlayerPosPacket(true, false, x, y, z));
     }
 
     public boolean isConnected() {
