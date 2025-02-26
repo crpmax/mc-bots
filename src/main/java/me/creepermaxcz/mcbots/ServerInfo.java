@@ -1,10 +1,11 @@
 package me.creepermaxcz.mcbots;
 
 
+import org.geysermc.mcprotocollib.network.ClientSession;
 import org.geysermc.mcprotocollib.network.Session;
 import org.geysermc.mcprotocollib.network.event.session.DisconnectedEvent;
 import org.geysermc.mcprotocollib.network.event.session.SessionAdapter;
-import org.geysermc.mcprotocollib.network.tcp.TcpClientSession;
+import org.geysermc.mcprotocollib.network.factory.ClientNetworkSessionFactory;
 import org.geysermc.mcprotocollib.protocol.MinecraftConstants;
 import org.geysermc.mcprotocollib.protocol.MinecraftProtocol;
 import org.geysermc.mcprotocollib.protocol.data.status.ServerStatusInfo;
@@ -16,7 +17,7 @@ import java.net.InetSocketAddress;
 
 public class ServerInfo {
 
-    private final Session client;
+    private final ClientSession client;
     private ServerStatusInfo serverStatusInfo;
     private long ping;
     private boolean done;
@@ -24,7 +25,11 @@ public class ServerInfo {
     public ServerInfo(InetSocketAddress address) {
 
         MinecraftProtocol protocol = new MinecraftProtocol();
-        client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, null);
+
+        client = ClientNetworkSessionFactory.factory()
+                .setAddress(address.getHostString(), address.getPort())
+                .setProtocol(protocol)
+                .create();
 
         client.setFlag(MinecraftConstants.SERVER_INFO_HANDLER_KEY, (ServerInfoHandler) (session, info) -> {
             this.serverStatusInfo = info;
