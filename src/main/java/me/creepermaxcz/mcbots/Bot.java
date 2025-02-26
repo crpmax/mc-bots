@@ -31,8 +31,6 @@ import java.util.regex.Pattern;
 
 public class Bot extends Thread {
 
-    MinecraftProtocol protocol = null;
-
     private String nickname;
     private ProxyInfo proxy;
     private InetSocketAddress address;
@@ -44,20 +42,6 @@ public class Bot extends Thread {
     private boolean connected;
 
     private boolean manualDisconnecting = false;
-
-    public Bot(String nickname, InetSocketAddress address, ProxyInfo proxy) {
-        this.nickname = nickname;
-        this.address = address;
-        this.proxy = proxy;
-
-        Log.info("Creating bot", nickname);
-        protocol = new MinecraftProtocol(nickname);
-        client = ClientNetworkSessionFactory.factory()
-                .setAddress(address.getHostString(), address.getPort())
-                .setProtocol(protocol)
-                .setProxy(proxy)
-                .create();
-    }
 
     public Bot(MinecraftProtocol protocol, InetSocketAddress address, ProxyInfo proxy) {
         this.nickname = protocol.getProfile().getName();
