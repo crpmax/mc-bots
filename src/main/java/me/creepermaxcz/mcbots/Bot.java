@@ -2,12 +2,14 @@ package me.creepermaxcz.mcbots;
 
 import org.geysermc.mcprotocollib.auth.GameProfile;
 import org.geysermc.mcprotocollib.auth.SessionService;
+import org.geysermc.mcprotocollib.network.ClientSession;
 import org.geysermc.mcprotocollib.network.ProxyInfo;
 import org.geysermc.mcprotocollib.network.Session;
 import org.geysermc.mcprotocollib.network.event.session.DisconnectedEvent;
 import org.geysermc.mcprotocollib.network.event.session.SessionAdapter;
+import org.geysermc.mcprotocollib.network.factory.ClientNetworkSessionFactory;
 import org.geysermc.mcprotocollib.network.packet.Packet;
-import org.geysermc.mcprotocollib.network.tcp.TcpClientSession;
+import org.geysermc.mcprotocollib.network.session.ClientNetworkSession;
 import org.geysermc.mcprotocollib.protocol.MinecraftConstants;
 import org.geysermc.mcprotocollib.protocol.MinecraftProtocol;
 import org.geysermc.mcprotocollib.protocol.data.UnexpectedEncryptionException;
@@ -34,7 +36,7 @@ public class Bot extends Thread {
     private String nickname;
     private ProxyInfo proxy;
     private InetSocketAddress address;
-    private Session client;
+    private ClientSession client;
     private boolean hasMainListener;
 
     private double lastX, lastY, lastZ = -1;
@@ -50,7 +52,11 @@ public class Bot extends Thread {
 
         Log.info("Creating bot", nickname);
         protocol = new MinecraftProtocol(nickname);
-        client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, proxy);
+        client = ClientNetworkSessionFactory.factory()
+                .setAddress(address.getHostString(), address.getPort())
+                .setProtocol(protocol)
+                .setProxy(proxy)
+                .create();
     }
 
     public Bot(MinecraftProtocol protocol, InetSocketAddress address, ProxyInfo proxy) {
@@ -60,7 +66,11 @@ public class Bot extends Thread {
 
         Log.info("Creating bot", nickname);
 
-        client = new TcpClientSession(address.getHostString(), address.getPort(), protocol, proxy);
+        client = ClientNetworkSessionFactory.factory()
+                .setAddress(address.getHostString(), address.getPort())
+                .setProtocol(protocol)
+                .setProxy(proxy)
+                .create();
 
         SessionService sessionService = new SessionService();
         client.setFlag(MinecraftConstants.SESSION_SERVICE_KEY, sessionService);
