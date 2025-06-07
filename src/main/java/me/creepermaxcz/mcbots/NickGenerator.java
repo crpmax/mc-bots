@@ -78,10 +78,13 @@ public class NickGenerator {
         return prefix + generateRandom(nickLen);
     }
 
-    public String nextReal() {
-        String nick = prefix + lines.get(random.nextInt(linesSize));
-        return nick.length() <= 16 ? nick : nick.substring(0, 15);
+    public synchronized String nextReal() {
 
+        int index = random.nextInt(linesSize);
+        String nick = prefix + lines.remove(index); // Remove chosen nicknames
+        linesSize = lines.size();
+
+        return nick.length() <= 16 ? nick : nick.substring(0, 15);
     }
 
     /**
