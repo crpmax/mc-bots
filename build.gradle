@@ -5,9 +5,6 @@ plugins {
 group 'me.creepermaxcz.mc-bots'
 version '1.2.14'
 
-sourceCompatibility = 1.17
-targetCompatibility = 1.17
-
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
@@ -23,6 +20,12 @@ dependencies {
     implementation 'dnsjava:dnsjava:3.4.3'
     implementation 'org.slf4j:slf4j-nop:2.0.13'
     implementation 'org.jline:jline:3.22.0'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 jar {
