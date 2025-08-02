@@ -13,13 +13,13 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.geysermc.mcprotocollib:protocol:1.21.4-SNAPSHOT'
-    implementation 'net.kyori:adventure-text-serializer-gson:4.16.0'
-    implementation 'commons-cli:commons-cli:1.5.0'
-    implementation 'com.diogonunes:JColor:5.2.0'
-    implementation 'dnsjava:dnsjava:3.4.3'
-    implementation 'org.slf4j:slf4j-nop:2.0.13'
-    implementation 'org.jline:jline:3.22.0'
+    implementation 'org.geysermc.mcprotocollib:protocol:1.21.7-SNAPSHOT'
+    implementation 'net.kyori:adventure-text-serializer-gson:4.24.0'
+    implementation 'commons-cli:commons-cli:1.9.0'
+    implementation 'com.diogonunes:JColor:5.5.1'
+    implementation 'dnsjava:dnsjava:3.6.3'
+    implementation 'org.slf4j:slf4j-nop:2.0.17'
+    implementation 'org.jline:jline:3.30.4'
 }
 
 java {
