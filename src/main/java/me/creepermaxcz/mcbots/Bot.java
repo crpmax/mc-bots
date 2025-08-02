@@ -165,7 +165,8 @@ public class Bot extends Thread {
                     0L,
                     null,
                     0,
-                    new BitSet()
+                    new BitSet(),
+                    0
             ));
         }
     }
