@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'me.creepermaxcz.mc-bots'
-version '1.2.14'
+version '1.2.15'
 
 sourceCompatibility = 1.17
 targetCompatibility = 1.17
@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.geysermc.mcprotocollib:protocol:1.21.4-SNAPSHOT'
+    implementation 'org.geysermc.mcprotocollib:protocol:1.21.5-SNAPSHOT'
     implementation 'net.kyori:adventure-text-serializer-gson:4.16.0'
     implementation 'commons-cli:commons-cli:1.5.0'
     implementation 'com.diogonunes:JColor:5.2.0'
