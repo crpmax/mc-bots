@@ -152,8 +152,11 @@ public class Utils {
                     Component component = arg.asComponent();
                     if (component instanceof TranslatableComponent) {
                         placeholders.add(translate((TranslatableComponent) component));
-                    } else if (arg instanceof TextComponent) {
+                    } else if (component instanceof TextComponent) {
                         placeholders.add(getFullText((TextComponent) component, false));
+                    } else {
+                        // Fallback for other component types
+                        placeholders.add(component.toString());
                     }
                 }
                 //Log.info(Arrays.toString(placeholders.toArray()));
@@ -161,6 +164,8 @@ public class Utils {
                     return String.format(base, placeholders.toArray());
                 } catch (Exception e) {
                     Log.error("Error formatting '"+base+"' with placeholders " + Arrays.toString(placeholders.toArray()));
+                    // Return a fallback message instead of empty string
+                    return key + " " + String.join(" ", placeholders);
                 }
             } else {
                 return base;

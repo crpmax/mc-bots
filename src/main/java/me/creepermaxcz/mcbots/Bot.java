@@ -42,6 +42,17 @@ public class Bot extends Thread {
     private boolean connected;
 
     private boolean manualDisconnecting = false;
+    
+    private Random movementRandom = new Random();
+    private double currentDirection = 0;
+    private int stepsInDirection = 0;
+    private int maxStepsInDirection = 0;
+    
+    // Stuck detection variables
+    private double previousX = 0, previousZ = 0;
+    private int stuckCounter = 0;
+    private static final int STUCK_THRESHOLD = 3; // Consider stuck after 3 failed moves
+    private static final double MIN_MOVEMENT = 0.01; // Minimum movement to not be considered stuck
 
     public Bot(MinecraftProtocol protocol, InetSocketAddress address, ProxyInfo proxy) {
         this.nickname = protocol.getProfile().getName();
@@ -203,6 +214,69 @@ public class Bot extends Thread {
     public void moveTo(double x, double y, double z)
     {
         client.send(new ServerboundMovePlayerPosPacket(true, false, x, y, z));
+    }
+    
+    public void jump() {
+        if (connected && lastZ != -1) {
+            // Jump by moving up 0.42 blocks (standard Minecraft jump height)
+            move(0, 0.42, 0);
+        }
+    }
+    
+    public void forceJump() {
+        // Force jump regardless of stuck status (for manual testing)
+        jump();
+    }
+    
+    public void moveRandomly() {
+        if (connected && lastZ != -1) {
+            // Store current position before moving
+            double currentX = lastX;
+            double currentZ = lastZ;
+            
+            // Check if we need a new direction
+            if (stepsInDirection >= maxStepsInDirection) {
+                // Pick new random direction and duration
+                currentDirection = movementRandom.nextDouble() * 2 * Math.PI;
+                maxStepsInDirection = 3 + movementRandom.nextInt(8); // Walk 3-10 steps in one direction
+                stepsInDirection = 0;
+            }
+            
+            // Move in current direction with realistic speed
+            double speed = 0.08; // About 0.08 blocks per movement call
+            double deltaX = Math.cos(currentDirection) * speed;
+            double deltaZ = Math.sin(currentDirection) * speed;
+            
+            // Occasionally stop moving (simulate standing still)
+            if (movementRandom.nextDouble() < 0.1) {
+                deltaX = 0;
+                deltaZ = 0;
+            }
+            
+            // Check if bot is stuck (hasn't moved much from previous position)
+            double distanceMoved = Math.sqrt(Math.pow(currentX - previousX, 2) + Math.pow(currentZ - previousZ, 2));
+            
+            if (distanceMoved < MIN_MOVEMENT && (deltaX != 0 || deltaZ != 0)) {
+                stuckCounter++;
+                
+                if (stuckCounter >= STUCK_THRESHOLD) {
+                    // Bot is stuck, try jumping and change direction
+                    jump();
+                    currentDirection = movementRandom.nextDouble() * 2 * Math.PI; // New random direction
+                    stuckCounter = 0; // Reset stuck counter
+                    stepsInDirection = maxStepsInDirection; // Force new direction next time
+                }
+            } else {
+                stuckCounter = 0; // Reset if bot moved successfully
+            }
+            
+            // Store position for next stuck check
+            previousX = currentX;
+            previousZ = currentZ;
+            
+            move(deltaX, 0, deltaZ);
+            stepsInDirection++;
+        }
     }
 
     public boolean isConnected() {

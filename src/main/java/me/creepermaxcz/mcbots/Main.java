@@ -86,6 +86,8 @@ public class Main {
         options.addOption("o", "online", false, "Use online mode (premium) account");
 
         options.addOption("ar", "auto-respawn", true, "Set autorespawn delay (-1 to disable)");
+        
+        options.addOption("rm", "random-move", true, "Enable random movement with interval in ms (e.g. 2000)");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -369,6 +371,19 @@ public class Main {
                 }
             }, 1000L, 500L);
         }
+        
+        //random movement timer
+        if (cmd.hasOption("rm")) {
+            long moveInterval = Long.parseLong(cmd.getOptionValue("rm", "2000"));
+            Log.info("Random movement enabled with interval: " + moveInterval + "ms");
+            
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    bots.forEach(Bot::moveRandomly);
+                }
+            }, moveInterval, moveInterval);
+        }
 
         Terminal terminal = TerminalBuilder.builder().build();
         LineReader lineReader = LineReaderBuilder.builder()
@@ -450,6 +465,15 @@ public class Main {
                     Log.info("There are " + bots.size() + " bots connected:");
                     for (Bot bot : bots) {
                         Log.info(bot.getNickname(), bot.hasMainListener() ? "[MainListener]" : "");
+                    }
+                } else if (commandName.equalsIgnoreCase("jump") || commandName.equalsIgnoreCase("j")) {
+                    // Jump command for testing
+                    if (!controlledBots.isEmpty()) {
+                        Log.info("Making controlled bots jump");
+                        controlledBots.forEach(Bot::forceJump);
+                    } else {
+                        Log.info("Making all bots jump");
+                        bots.forEach(Bot::forceJump);
                     }
                 } else if (commandName.equalsIgnoreCase("leave") || commandName.equalsIgnoreCase("exit")) {
                     int limit = -1;

@@ -13,6 +13,8 @@ For older MC versions please look in the [releases](https://github.com/crpmax/mc
 - ✅ Generate random or real looking nicknames or load from file
 - ✅ Online (premium) account support with login using Microsoft
 - ✅ Control all or selected bots
+- ✅ Random movement simulation
+- ✅ Automatic jump when stuck (obstacle avoidance)
 
 ## 📖 Usage
 Minimal Java version: 17  
@@ -23,6 +25,9 @@ When running, you can write a chat message to the terminal to send it by all bot
 ## 🧪 Example
 `java -jar mc-bots-1.2.17.jar -s 192.168.0.189:25565 -p BOT_ -d 4000 5000 -c 30 -r`  
 This will connect 30 bots to server at 192.168.0.189:25565 with delay 4000-5000 ms and will use real-looking nicknames prefixed with BOT_
+
+`java -jar mc-bots-1.2.17.jar -s 192.168.0.189:25565 -c 10 -rm 1000 -g`  
+This will connect 10 bots with random movement every 1 second and gravity simulation enabled
 
 <img src="https://imgur.com/XWcckas.png" title="Connected bots" width="350px"/>
 <img src="https://imgur.com/CvJq1Io.gif" title="Sending chat message by bots" width="350px"/>
@@ -42,6 +47,7 @@ This will connect 30 bots to server at 192.168.0.189:25565 with delay 4000-5000 
 `-g` Try to simulate gravity by falling down  
 `-o` Use online (premium) account (login with Microsoft OAuth)  
 `-ar <delay>` Set auto-respawn delay (default is 100 ms, set to -1 to disable)  
+`-rm <interval>` Enable random movement with specified interval in milliseconds (e.g. 2000 for 2 seconds)  
 `--nicks <file>` Set nicknames file  
 
 
@@ -50,6 +56,7 @@ Commands can be typed to the console. They are prefixed with `.` or `!`.
 Without the prefix it will be sent as a chat message!  
 `.list` or `.ls` - list all connected bots  
 `.control <nick>` or `.ctrl <nick>` - select one or multiple bots to control  
+`.jump` or `.j` - make bots jump (useful for testing or getting unstuck)  
 `.exit <limit>` or `.leave <limit>` - disconnect all or specified number of bots   
 
 ## ⚠ DISCLAIMER
