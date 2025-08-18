@@ -1,2 +1,4 @@
 rootProject.name = 'mc-bots'
-
+#org.gradle.java.installations.fromEnv=JAVA_HOME
+#org.gradle.java.installations.auto-download=false
+org.gradle.configuration-cache=true
